@@ -44,6 +44,26 @@ float& vec3::operator[](std::size_t index)
 	abort();
 }
 
+bool vec3::operator<(const vec<3> &right) const
+{
+        if (x < right.x)
+            return true;
+        else if (x > right.x)
+            return false;
+
+        if (y < right.y)
+            return true;
+        else if (y > right.y)
+            return false;
+
+        if (z < right.z)
+            return true;
+        else if (z > right.z)
+            return false;
+
+        return false;
+     }
+
 vec3 cross(const vec3& a,const vec3& b)
 {
     return    { a.y*b.z-a.z*b.y,

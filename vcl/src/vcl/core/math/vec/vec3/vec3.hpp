@@ -22,6 +22,8 @@ template <> struct vec<3> {
     const float& operator[](std::size_t index) const;
     /** Set operator at given index */
     float& operator[](std::size_t index);
+    /** Comparison of two vector */
+    bool operator<(const vec3 &right) const;
 };
 
 /** Cross product between two vec3 */
