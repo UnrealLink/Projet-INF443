@@ -19,7 +19,7 @@ void scene_project::setup_data(std::map<std::string,GLuint>& , scene_structure& 
     terrain.uniform_parameter.shading = {0.2f, 1.f, 0.f}; // non-specular terrain material
     texture_terrain = texture_gpu(image_load_png("data/gravel-stone.png"));
 
-    murene = mesh_load_file_obj("src/Projet-INF443/data/murene.obj");
+    murene = mesh_load_file_obj("data/murene.obj");
     murene.uniform_parameter.translation = {0.f,0.f,0.f};
     murene.uniform_parameter.shading = {0.6f, 0.5f, 0.f}; // non-specular terrain material
 
@@ -213,23 +213,3 @@ mesh createMurene()
 
     return murene;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

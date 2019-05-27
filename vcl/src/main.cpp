@@ -5,7 +5,7 @@
 // Include common part for exercises
 #include "helper_scene.hpp"
 
-#include "Projet-INF443/scene.hpp"
+#include "project/scene.hpp"
 
 
 

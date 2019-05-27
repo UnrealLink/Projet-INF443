@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../core/core.hpp"
-#include <map>;
+#include <map>
 
 using namespace vcl;
 

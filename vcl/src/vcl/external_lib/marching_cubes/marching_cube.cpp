@@ -18,13 +18,13 @@ mesh create_chunk(vec3 origin, const int nb_cubes, const float cube_size, float 
         }
     }
 
-    return chunk; 
+    return chunk;
 
 }
 
 
 int compute_cube(Cube cube, float isolevel, mesh &chunk, std::map<vec3, int> &coordsToIdx, int &last){
-    
+
     vec3 points[12];
 
     /*
@@ -89,7 +89,7 @@ int compute_cube(Cube cube, float isolevel, mesh &chunk, std::map<vec3, int> &co
         vec3 p1 = points[triTable[cubeindex][i  ]];
         vec3 p2 = points[triTable[cubeindex][i+1]];
         vec3 p3 = points[triTable[cubeindex][i+2]];
-        int i1, i2, i3;
+        unsigned int i1, i2, i3;
         std::map<vec3, int>::iterator it;
         it = coordsToIdx.find(p1);
         if(it != coordsToIdx.end()) {i1 = it->second;} else {i1 = last++; chunk.position.push_back(p1); coordsToIdx[p1]=i1;}
@@ -112,13 +112,13 @@ vec3 interpolate(float isolevel, vec3 p1, vec3 p2, float val1, float val2)
         vec3 temp;
         temp = p1;
         p1 = p2;
-        p2 = temp;    
+        p2 = temp;
     }
 
     vec3 p;
     if(fabs(val1 - val2) > 0.00001)
         p = (vec3)p1 + ((vec3)p2 - (vec3)p1)/(val2 - val1)*(isolevel - val1);
-    else 
+    else
         p = (vec3)p1;
     return p;
 }
