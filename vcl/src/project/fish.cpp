@@ -11,6 +11,7 @@ fish::fish() : mesh_drawable(), mesh_length(0.f)
 
 fish::fish(const vcl::mesh& data) : mesh_drawable(data), mesh_length(0.f)
 {
+    std::cout << data.connectivity.size() << std::endl;
     for(vec3 v : data.position)
     {
         if(v.z > mesh_length)

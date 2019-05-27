@@ -19,7 +19,7 @@ void scene_project::setup_data(std::map<std::string,GLuint>& , scene_structure& 
     terrain.uniform_parameter.shading = {0.2f, 1.f, 0.f}; // non-specular terrain material
     texture_terrain = texture_gpu(image_load_png("data/gravel-stone.png"));
 
-    murene = createMurene();
+    murene = mesh_load_file_obj("src/Projet-INF443/data/murene.obj");
     murene.uniform_parameter.translation = {0.f,0.f,0.f};
     murene.uniform_parameter.shading = {0.6f, 0.5f, 0.f}; // non-specular terrain material
 
@@ -52,8 +52,8 @@ void scene_project::frame_draw(std::map<std::string,GLuint>& shaders, scene_stru
     terrain.draw(shaders["underwater"], scene.camera);
     glBindTexture(GL_TEXTURE_2D, scene.texture_white);
 
-    murene.ampl = timer.t;
-    //murene.draw(shaders["ondulant"], scene.camera);
+    //murene.ampl = timer.t;
+    murene.draw(shaders["mesh"], scene.camera);
 
     if( gui_scene.wireframe ){ // wireframe if asked from the GUI
         glPolygonOffset( 1.0, 1.0 );

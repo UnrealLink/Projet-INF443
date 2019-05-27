@@ -1,23 +1,16 @@
-#ifndef SCENE_HPP
-#define SCENE_HPP
+#pragma once
 
-#include "../vcl/vcl.hpp"
-#include "../helper_scene.hpp"
-#include "light.hpp"
-#include "fish.hpp"
+#include "../../exercises/base_exercise/base_exercise.hpp"
 
+#ifdef INF443_EXAMPLE_BILLBOARD
 
-#include <string>
-#include <map>
-#include <vector>
-
+// Stores some parameters that can be set from the GUI
 struct gui_scene_structure
 {
     bool wireframe;
 };
 
-
-struct scene_project
+struct scene_exercise : base_scene_exercise
 {
 
     /** A part must define two functions that are called from the main function:
@@ -34,23 +27,15 @@ struct scene_project
     void setup_data(std::map<std::string,GLuint>& shaders, scene_structure& scene, gui_structure& gui);
     void frame_draw(std::map<std::string,GLuint>& shaders, scene_structure& scene, gui_structure& gui);
 
-    void set_lights(GLuint shader, scene_structure& scene);
-
     void set_gui();
-    void mouse_click(scene_structure& scene, GLFWwindow* window, int button, int action, int mods);
-    void mouse_move(scene_structure& scene, GLFWwindow* window);
 
-    // visual representation of a surface
-    vcl::mesh_drawable terrain;
-    GLuint texture_terrain;
-
-    fishexp murene;
+    vcl::mesh_drawable ground;
+    vcl::mesh_drawable surface;
+    GLuint texture_id;
 
     gui_scene_structure gui_scene;
-
-    vcl::timer_interval_reversing timer;
 };
 
-typedef struct scene_project scene_project;
+#endif
 
-#endif // SCENE_HPP
+
