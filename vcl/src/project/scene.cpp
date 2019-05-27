@@ -6,7 +6,7 @@ float evaluateTerrain_z(float u, float v);
 vec3 evaluateTerrain(float u, float v, float terrain_size);
 vec2 evaluateTerrainTexture(float u, float v, int repeat);
 mesh createTerrain();
-mesh createMurene();
+//mesh createMurene();
 
 
 /** This function is called before the beginning of the animation loop
@@ -53,12 +53,12 @@ void scene_project::frame_draw(std::map<std::string,GLuint>& shaders, scene_stru
     glBindTexture(GL_TEXTURE_2D, scene.texture_white);
 
     //murene.ampl = timer.t;
-    murene.draw(shaders["mesh"], scene.camera);
+    //murene.draw(shaders["mesh"], scene.camera);
 
     if( gui_scene.wireframe ){ // wireframe if asked from the GUI
         glPolygonOffset( 1.0, 1.0 );
         terrain.draw(shaders["wireframe"], scene.camera);
-        murene.draw(shaders["wireframe"], scene.camera);
+        //murene.draw(shaders["wireframe"], scene.camera);
 
     }
 
@@ -101,7 +101,7 @@ void scene_project::mouse_move(scene_structure& scene, GLFWwindow* window)
 {
 
 }
-
+/*
 // Evaluate height of the terrain for any (u,v) \in [0,1]
 float evaluateTerrain_z(float u, float v)
 {
@@ -178,6 +178,18 @@ mesh createTerrain()
         }
     }
 
+    return terrain;
+}
+*/
+float f(vec3 p){
+    return perlin(0.05f * p.x, 0.05f *p.y, 0.05f *p.z);
+}
+
+mesh createTerrain()
+{
+    mesh terrain; // temporary terrain storage (CPU only)
+
+    terrain = create_chunk(vec3(0,0,0), 10, 1, f, 0.5);
     return terrain;
 }
 
