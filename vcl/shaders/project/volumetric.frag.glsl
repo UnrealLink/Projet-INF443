@@ -21,10 +21,6 @@ uniform float specular = 0.5;
 
 vec3 light = vec3(camera_position.x, camera_position.y, 3.0f);
 
-uniform vec3 blanc = vec3(1.f, 1.f, 1.f);
-uniform vec3 bleu = vec3(0.f, 0.f, 1.f);
-
-
 void main()
 {
     vec3 n = normalize(fragment.normal.xyz);
@@ -39,15 +35,8 @@ void main()
 
     vec3 white = vec3(1.0);
     vec4 color_texture = texture(texture_sampler, fragment.texture_uv);
-    if(fragment.mesh_position.y - fragment.mesh_position.z*0.12f > -0.08f)
-        color_texture = vec4(bleu, 1.f);
-    else
-        color_texture = vec4(blanc, 1.f);
-
-
     vec3 c = (ambiant+diffuse_value)*color.rgb*fragment.color.rgb*color_texture.rgb + specular_value*white;
 
 
     FragColor = vec4(c, color_texture.a*fragment.color.a);
 }
-

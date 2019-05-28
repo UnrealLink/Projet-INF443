@@ -12,7 +12,6 @@ struct light
     vcl::vec3 position; //donne dans le repere du monde
     vcl::vec3 color;
     float radius; //rayon de la zone lumineuse, dans laquelle il n'y a pas de decroissance a la source
-    float rangeDecr;  //vitesse de decroissance de la portee or rayon
     float strength;
 };
 
@@ -23,15 +22,15 @@ struct spot
     vcl::vec3 color;
     float inner;
     float outter;
-    float strength;
     float radius;
+    float strength;
 };
 
 void uniform(GLuint shader, const std::string& name, const light& value);
 void uniform(GLuint shader, const std::string& name, const spot& value);
 
-const light switchedOffLight = light{vcl::vec3(0.f, 0.f, 0.f), vcl::vec3(1.f, 1.f, 1.f), 1.f, 0.f, 1.f};
-const spot switchedOffSpot = spot{vcl::vec3(0.f, 0.f, 0.f), vcl::vec3(0.f, 0.f, 1.f), vcl::vec3(1.f, 1.f, 1.f), 0.f, 0.f, 0.f};
+const light switchedOffLight = light{vcl::vec3(0.f, 0.f, 0.f), vcl::vec3(0.f, 0.f, 0.f), 0.f, 1.f};
+const spot switchedOffSpot = spot{vcl::vec3(0.f, 0.f, 0.f), vcl::vec3(0.f, 0.f, 1.f), vcl::vec3(0.f, 0.f, 0.f), 0.f, 0.f, 0.f, 0.f};
 
 
 

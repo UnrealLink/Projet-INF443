@@ -45,12 +45,21 @@ uniform spot spotlight;
 uniform vec3 color_fond = vec3(0.08f, 0.08f, 0.2f);
 uniform vec3 attenuationColor = vec3(1.f, 1.f, 0.3f);
 
+uniform vec3 blanc = vec3(1.f, 1.f, 1.f);
+uniform vec3 bleu = vec3(0.f, 0.f, 0.7f);
+
+
 void lightEclairage(in light l, in fragment_data frag, inout vec3 diffuse_ecl, inout vec3 specular_ecl);
 void spotEclairage(in spot l, in fragment_data frag, inout vec3 diffuse_ecl);
 
 void main()
 {
     vec4 color_texture = texture(texture_sampler, fragment.texture_uv);
+    if(fragment.mesh_position.y + fragment.mesh_position.z*0.25f  + abs(fragment.mesh_position.x)*0.07> 0.016f)
+        color_texture = vec4(bleu, 1.f);
+    else
+        color_texture = vec4(blanc, 1.f);
+
     vec3 diffuse_ecl = vec3(0.f), specular_ecl = vec3(0.f);
     lightEclairage(mainLight, fragment, diffuse_ecl, specular_ecl);
     for(int i = 0; i < 10; i++)
@@ -76,7 +85,7 @@ void lightEclairage(in light l, in fragment_data frag, inout vec3 diffuse_ecl, i
     float diffuse_value  = diffuse * clamp( dot(u,n), 0.0, 1.0);
     float specular_value = specular * pow( clamp( dot(r,t), 0.0, 1.0), 128.0);
 
-    float dist = distance(frag.position.xyz, camera_position) + distance(l.position, frag.position.xyz);    
+    float dist = distance(frag.position.xyz, camera_position) + distance(l.position, frag.position.xyz);
     vec3 attenuation = clamp(exp(-attenuationColor*(dist - l.radius)/l.strength), 0.f, 1.f);
 
     diffuse_ecl += diffuse_value*l.color*attenuation;

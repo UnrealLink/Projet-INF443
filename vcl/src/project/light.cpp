@@ -7,7 +7,6 @@ void uniform(GLuint shader, const std::string& name, const light& value)
     uniform(shader, name + ".position", value.position);
     uniform(shader, name + ".color", value.color);
     uniform(shader, name + ".radius", value.radius);
-    uniform(shader, name + ".rangeDecr", value.rangeDecr);
     uniform(shader, name + ".strength", value.strength);
 }
 
