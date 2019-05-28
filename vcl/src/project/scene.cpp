@@ -182,14 +182,15 @@ mesh createTerrain()
 }
 */
 float f(vec3 p){
-    return perlin(0.05f * p.x, 0.05f *p.y, 0.05f *p.z);
+    return perlin(0.5f*p.x, 0.5f*p.y, 0.5f*p.z);
+    //return p.x*p.x + p.y*p.y + p.z*p.z;
 }
 
 mesh createTerrain()
 {
     mesh terrain; // temporary terrain storage (CPU only)
 
-    terrain = create_chunk(vec3(0,0,0), 10, 1, f, 0.5);
+    terrain = create_chunk(vec3(0,0,0), 30, 0.1, f, .5);
     return terrain;
 }
 
