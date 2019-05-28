@@ -24,8 +24,8 @@ struct spot
     vec3 color;
     float inner;
     float outter;
-    float strength;
     float radius;
+    float strength;
 };
 
 uniform sampler2D texture_sampler;

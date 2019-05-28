@@ -13,6 +13,7 @@ public:
 
     void update_mouse_move(camera_scene& camera, GLFWwindow* window, float x1, float y1);
     void update_mouse_click(camera_scene& camera, GLFWwindow* window,  int button, int action, int mods);
+    void update_key(camera_scene& camera, GLFWwindow* window, int key, int scancode, int action, int mods);
 
     bool update = true;
 

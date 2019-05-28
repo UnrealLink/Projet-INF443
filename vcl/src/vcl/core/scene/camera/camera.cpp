@@ -112,7 +112,6 @@ static vec3 trackball_projection(float x, float y, float radius=1.0f)
     return {x, y, z};
 }
 
-
 void camera_scene::apply_rotation(float x0, float y0, float x1, float y1)
 {
 
@@ -150,7 +149,26 @@ void camera_scene::apply_rotation(float x0, float y0, float x1, float y1)
         const mat3 R = rotation_between_vector_mat3(p0, p1);
         orientation = orientation * transpose(R);
     }
+    else if(camera_type == camera_control_fps)
+    {
+        const float dtheta = x1-x0;
+        const float dphi = y1-y0;
 
+        spherical_coordinates.x -= dtheta/1000.f;
+        spherical_coordinates.y -= dphi/1000.f;
+        const float theta = spherical_coordinates.x;
+        const float phi   = spherical_coordinates.y;
+
+        const mat3 Rx = { 1,      0        ,     0           ,
+                          0,std::cos(phi), -std::sin(phi),
+                          0,std::sin(phi),  std::cos(phi)};
+
+        const mat3 Rz = { std::cos(theta) , -std::sin(theta) , 0,
+                          std::sin(theta) ,  std::cos(theta) , 0,
+                          0             ,      0         , 1};
+
+        orientation = Rz*Rx;
+    }
 }
 
 void camera_scene::apply_scaling(float s)

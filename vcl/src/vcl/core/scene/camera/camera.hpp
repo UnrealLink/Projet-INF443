@@ -21,7 +21,7 @@ struct perspective_structure
     mat4 matrix_inverse() const;
 };
 
-enum camera_control_type {camera_control_trackball, camera_control_spherical_coordinates};
+enum camera_control_type {camera_control_trackball, camera_control_spherical_coordinates, camera_control_fps};
 
 /** Structure handling a camera.
     The camera handle internally

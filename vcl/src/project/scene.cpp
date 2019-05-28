@@ -24,7 +24,7 @@ void scene_project::setup_data(std::map<std::string,GLuint>& , scene_structure& 
     cavern.uniform_parameter.shading = {0.2f, 1.f, 0.f}; // non-specular terrain material
     texture_cavern = texture_gpu(image_load_png("data/gravel-stone.png"));
     distance_display_cavern = 200.;
-    */
+*/
 
     mur = load_murene("data/murene.obj");
     mur.uniform_parameter.translation = {0.f,0.f,0.f};
@@ -42,12 +42,13 @@ void scene_project::setup_data(std::map<std::string,GLuint>& , scene_structure& 
 
     // Setup initial camera mode and position
     scene.camera.camera_type = camera_control_fps;
-    scene.camera.scale = 10.0f;
+    scene.camera.scale = 0.f;
     scene.camera.apply_rotation(0,0,0,1.2f);
+    scene.camera.apply_translation_orthogonal_to_screen_plane(-5.f);
 
     timer.t_min = -10.f;
-    timer.t_max = 20.f;
-    timer.scale = 1.f;
+    timer.t_max = 10.f;
+    timer.scale = 2.f;
 }
 
 /** This function is called at each frame of the animation loop.
@@ -63,17 +64,16 @@ void scene_project::frame_draw(std::map<std::string,GLuint>& shaders, scene_stru
 
     // Display terrain
     glPolygonOffset( 1.0, 1.0 );
-    glBindTexture(GL_TEXTURE_2D, texture_cavern);
+    glBindTexture(GL_TEXTURE_2D, texture_terrain);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,  GL_MIRRORED_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,  GL_MIRRORED_REPEAT);
-    cavern.draw(shaders["underwater"], scene.camera, distance_display_cavern);
     terrain.draw(shaders["underwater"], scene.camera);
     glBindTexture(GL_TEXTURE_2D, scene.texture_white);
 
     mur.ampl = timer.t;
     //mur.draw(shaders["deforme"], scene.camera);
 
-    requin.ampl = timer.t/3.f;
+    requin.ampl = timer.t/10.f;
     requin.draw(shaders["requin"], scene.camera);
 
 
@@ -101,7 +101,7 @@ void scene_project::set_lights(GLuint shader, scene_structure& scene)
     }
 
     spot spotlight = spot{scene.camera.camera_position() , dir, vec3(1.f, 1.f, 1.f), 0.99f, 0.98f, 0.f, 50.f};
-    spotlight = switchedOffSpot;
+    //spotlight = switchedOffSpot;
 
     uniform(shader, "mainLight", mainLight); opengl_debug();
     for(int i = 0; i < 10; i++)
