@@ -8,6 +8,7 @@ layout (location = 3) in vec2 texture_uv;
 out struct fragment_data
 {
     vec4 position;
+    vec4 mesh_position;
     vec4 normal;
     vec4 color;
     vec2 texture_uv;
@@ -56,7 +57,7 @@ void main()
 
     fragment.color = color;
     fragment.texture_uv = texture_uv;
-
+    fragment.mesh_position = position;
     fragment.position = position_transformed;
     gl_Position = perspective * view * position_transformed;
 }

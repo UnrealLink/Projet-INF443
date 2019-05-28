@@ -3,6 +3,7 @@
 in struct fragment_data
 {
     vec4 position;
+    vec4 mesh_position;
     vec4 normal;
     vec4 color;
     vec2 texture_uv;
@@ -42,25 +43,33 @@ uniform light mainLight;
 uniform light sideLight[10];
 uniform spot spotlight;
 
-uniform vec3 attenuationColor = vec3(0.15f, 0.15f, 0.8f);
+uniform vec3 color_fond = vec3(0.08f, 0.08f, 0.2f);
+uniform vec3 attenuationColor = vec3(1.f, 1.f, 0.3f);
 
-vec3 mainEclairage(in light l, in fragment_data frag, in vec4 color_texture);
-vec3 sideEclairage(in light l, in fragment_data frag, in vec4 color_texture);
+void lightEclairage(in light l, in fragment_data frag, inout vec3 diffuse_ecl, inout vec3 specular_ecl);
 vec3 spotEclairage(in spot l, in fragment_data frag, in vec4 color_texture);
 
 void main()
 {
     vec4 color_texture = texture(texture_sampler, fragment.texture_uv);
-    vec3 cf = mainEclairage(mainLight, fragment, color_texture);
+    vec3 diffuse_ecl = vec3(0.f), specular_ecl = vec3(0.f);
+    vec3 cf = vec3(0.f);
+    lightEclairage(mainLight, fragment, diffuse_ecl, specular_ecl);
+
     for(int i = 0; i < 10; i++)
-        cf += sideEclairage(sideLight[i], fragment, color_texture);
+        lightEclairage(sideLight[i], fragment, diffuse_ecl, specular_ecl);
 
     cf += spotEclairage(spotlight, fragment, color_texture);
 
+    vec3 diffuse_color = clamp(ambiant + diffuse_ecl*diffuse, 0.f, 1.f)*color.rgb*fragment.color.rgb*color_texture.rgb;
+    vec3 specular_color = clamp( specular_ecl*vec3(1.f)*specular, 0.f, 1.f);
+
+    cf = mix(color_fond, diffuse_color, diffuse_ecl);
+    cf += mix(vec3(0.f), specular_color, specular_ecl);
     FragColor = vec4(cf, color_texture.a*fragment.color.a);
 }
 
-vec3 mainEclairage(in light l, in fragment_data frag, in vec4 color_texture)
+void lightEclairage(in light l, in fragment_data frag, inout vec3 diffuse_ecl, inout vec3 specular_ecl)
 {
     vec3 n = normalize(frag.normal.xyz);
     vec3 u = normalize(l.position-frag.position.xyz);
@@ -70,19 +79,11 @@ vec3 mainEclairage(in light l, in fragment_data frag, in vec4 color_texture)
     float diffuse_value  = diffuse * clamp( dot(u,n), 0.0, 1.0);
     float specular_value = specular * pow( clamp( dot(r,t), 0.0, 1.0), 128.0);
 
-    vec3 c = ((ambiant+diffuse_value)*color.rgb*frag.color.rgb*color_texture.rgb + specular_value)*l.color;
-    return c*min(vec3(1.f), attenuationColor*l.strength/(distance(frag.position.xyz, camera_position) + max(distance(l.position, frag.position.xyz) - l.radius, 0)*l.rangeDecr ));
-}
+    float dist = distance(frag.position.xyz, camera_position) + distance(l.position, frag.position.xyz);    
+    vec3 attenuation = clamp(exp(-attenuationColor*(dist - l.radius)/l.strength), 0.f, 1.f);
 
-vec3 sideEclairage(in light l, in fragment_data frag, in vec4 color_texture) //doesnt add ambiant and specular
-{
-    vec3 n = normalize(frag.normal.xyz);
-    vec3 u = normalize(l.position-frag.position.xyz);
-
-    float diffuse_value  = diffuse * clamp( dot(u,n), 0.0, 1.0);
-
-    vec3 c = diffuse_value*color.rgb*frag.color.rgb*color_texture.rgb*l.color;
-    return c*min(vec3(1.f), attenuationColor*l.strength/(distance(frag.position.xyz, camera_position) + max(distance(l.position, frag.position.xyz) - l.radius, 0)*l.rangeDecr ));
+    diffuse_ecl += diffuse_value*l.color*attenuation;
+    specular_ecl += diffuse_value*l.color*attenuation;
 }
 
 vec3 spotEclairage(in spot l, in fragment_data frag, in vec4 color_texture)
@@ -93,11 +94,6 @@ vec3 spotEclairage(in spot l, in fragment_data frag, in vec4 color_texture)
     float diffuse_value  = diffuse * clamp(dot(u,n), 0.f, 1.f) *smoothstep(l.outter, l.inner, dot(-u,l.dir));
 
     vec3 c = diffuse_value*color.rgb*frag.color.rgb*color_texture.rgb*l.color;
-    return c*min(vec3(1.f), attenuationColor*l.strength/max(distance(frag.position.xyz, camera_position) + distance(l.position, frag.position.xyz) - l.radius*2 , 1.f));
+    float dist = distance(frag.position.xyz, camera_position) + distance(l.position, frag.position.xyz);
+    return c*exp(-attenuationColor*dist/l.radius)/l.strength;
 }
-
-
-
-
-
-

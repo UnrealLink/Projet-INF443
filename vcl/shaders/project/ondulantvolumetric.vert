@@ -8,6 +8,7 @@ layout (location = 3) in vec2 texture_uv;
 out struct fragment_data
 {
     vec4 position;
+    vec4 mesh_position;
     vec4 normal;
     vec4 color;
     vec2 texture_uv;
@@ -111,4 +112,3 @@ mat3 rotation_between_vector_mat3(in vec3 a, in vec3 b)
 
     return rotation_from_axis_angle_mat3(axis,angle);
 }
-

@@ -53,9 +53,8 @@ void load_shaders(std::map<std::string,GLuint>& shaders)
     shaders["curve"] = create_shader_program("shaders/curve/shader.vert.glsl","shaders/curve/shader.frag.glsl");
     shaders["segment_im"] = create_shader_program("shaders/segment_immediate_mode/shader.vert.glsl","shaders/segment_immediate_mode/shader.frag.glsl");
 
-    shaders["ondulant"] = create_shader_program("shaders/mesh/ondulant.vert.glsl","shaders/mesh/underwater.frag.glsl");
-    shaders["deforme"] = create_shader_program("shaders/mesh/ondulant.vert.glsl","shaders/mesh/shader.frag.glsl");
-    shaders["underwater"] = create_shader_program("shaders/mesh/shader.vert.glsl","shaders/mesh/underwater_exp.frag.glsl");
+    shaders["ondulant"] = create_shader_program("shaders/project/ondulant.vert.glsl","shaders/project/underwater.frag.glsl");
+    shaders["underwater"] = create_shader_program("shaders/project/volumetric.vert.glsl","shaders/project/underwater.frag.glsl");
 
     std::cout<<"\t [OK] Shader loaded"<<std::endl;
 }
