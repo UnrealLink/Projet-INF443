@@ -189,8 +189,20 @@ float f(vec3 p){
 mesh createTerrain()
 {
     mesh terrain; // temporary terrain storage (CPU only)
+    int nb_chunks = 4;
+    int chunk_size = 20;
+    float cube_size = 0.1;
+    mesh chunk;
+    terrain = create_chunk(vec3(0,0,0), chunk_size, cube_size, f, .5);
+    for (int i=0; i<nb_chunks; i++){
+        for (int j=0; j<nb_chunks; j++){
+            for (int k=0; k<nb_chunks; k++){
+                chunk = create_chunk(vec3(i*chunk_size*cube_size, j*chunk_size*cube_size, k*chunk_size*cube_size), chunk_size, cube_size, f, .5);
+                terrain.push_back(chunk);
+            }
+        }
+    }
 
-    terrain = create_chunk(vec3(0,0,0), 30, 0.1, f, .5);
     return terrain;
 }
 
