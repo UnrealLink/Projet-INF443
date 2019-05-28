@@ -7,6 +7,7 @@ vec3 evaluateTerrain(float u, float v, float terrain_size);
 vec2 evaluateTerrainTexture(float u, float v, int repeat);
 mesh createTerrain();
 mesh createMurene();
+mesh create_skybox();
 
 
 /** This function is called before the beginning of the animation loop
@@ -19,12 +20,12 @@ void scene_project::setup_data(std::map<std::string,GLuint>& , scene_structure& 
     terrain.uniform_parameter.shading = {0.13f, 1.f, 0.f}; // non-specular terrain material
     texture_terrain = texture_gpu(image_load_png("data/gravel-stone.png"));
 
-    /*cavern = createCavern(vec3(0, 0, 0), 5, 20, 1.);
+    cavern = createCavern(vec3(-40, -40, -40), 5, 20, 1., perlin3D, 0.5);
     cavern.uniform_parameter.color = {1.f, 1.f, 1.f};
-    cavern.uniform_parameter.shading = {0.2f, 1.f, 0.f}; // non-specular terrain material
+    cavern.uniform_parameter.shading = {0.13f, 1.f, 0.f}; // non-specular terrain material
     texture_cavern = texture_gpu(image_load_png("data/gravel-stone.png"));
     distance_display_cavern = 200.;
-*/
+
 
     mur = load_murene("data/murene.obj");
     mur.uniform_parameter.translation = {0.f,0.f,0.f};
@@ -38,6 +39,10 @@ void scene_project::setup_data(std::map<std::string,GLuint>& , scene_structure& 
     requin.uniform_parameter.color = {1.f, 1.f, 1.f};
     requin.uniform_parameter.rotation = rotation_from_axis_angle_mat3({1.0f, .0f, .0f}, 3.14159f/2.f);
 
+    skybox = create_skybox();
+    skybox.uniform_parameter.shading = {1,0,0};
+    skybox.uniform_parameter.rotation = rotation_from_axis_angle_mat3({1,0,0},-3.014f/2.0f);
+    texture_skybox = texture_gpu(image_load_png("data/skybox.png"));
 
 
     // Setup initial camera mode and position
@@ -64,11 +69,17 @@ void scene_project::frame_draw(std::map<std::string,GLuint>& shaders, scene_stru
 
     // Display terrain
     glPolygonOffset( 1.0, 1.0 );
-    glBindTexture(GL_TEXTURE_2D, texture_terrain);
+    /*glBindTexture(GL_TEXTURE_2D, texture_terrain);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,  GL_MIRRORED_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,  GL_MIRRORED_REPEAT);
-    terrain.draw(shaders["underwater"], scene.camera);
+    terrain.draw(shaders["underwater"], scene.camera);*/
+    glBindTexture(GL_TEXTURE_2D, texture_cavern);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,  GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,  GL_MIRRORED_REPEAT);
+    cavern.draw(shaders["underwater"], scene.camera, distance_display_cavern);
     glBindTexture(GL_TEXTURE_2D, scene.texture_white);
+
+    display_skybox(shaders, scene);
 
     mur.ampl = timer.t;
     //mur.draw(shaders["deforme"], scene.camera);
@@ -114,6 +125,7 @@ void scene_project::set_lights(GLuint shader, scene_structure& scene)
 void scene_project::set_gui()
 {
     ImGui::Checkbox("Wireframe", &gui_scene.wireframe);
+    ImGui::Checkbox("Skybox", &gui_scene.skybox);
 }
 
 void scene_project::mouse_click(scene_structure& scene, GLFWwindow* window, int button, int action, int mods)
@@ -238,22 +250,67 @@ mesh createMurene()
     return murene;
 }
 
+void scene_project::display_skybox(std::map<std::string,GLuint>& shaders, scene_structure& scene)
+{
+    if(gui_scene.skybox)
+    {
+        glBindTexture(GL_TEXTURE_2D,texture_skybox);
+        skybox.uniform_parameter.scaling = 150.0f;
+        skybox.uniform_parameter.translation = scene.camera.camera_position() + vec3(0,0,-50.0f);
+        skybox.draw(shaders["mesh"], scene.camera);
+        glBindTexture(GL_TEXTURE_2D,scene.texture_white);
+    }
+}
+
+vcl::mesh create_skybox()
+{
+    const vec3 p000 = {-1,-1,-1};
+    const vec3 p001 = {-1,-1, 1};
+    const vec3 p010 = {-1, 1,-1};
+    const vec3 p011 = {-1, 1, 1};
+    const vec3 p100 = { 1,-1,-1};
+    const vec3 p101 = { 1,-1, 1};
+    const vec3 p110 = { 1, 1,-1};
+    const vec3 p111 = { 1, 1, 1};
+
+    mesh skybox;
+
+    skybox.position = {
+        p000, p100, p110, p010,
+        p010, p110, p111, p011,
+        p100, p110, p111, p101,
+        p000, p001, p010, p011,
+        p001, p101, p111, p011,
+        p000, p100, p101, p001
+    };
 
 
+    skybox.connectivity = {
+        {0,1,2}, {0,2,3}, {4,5,6}, {4,6,7},
+        {8,11,10}, {8,10,9}, {17,16,19}, {17,19,18},
+        {23,22,21}, {23,21,20}, {13,12,14}, {13,14,15}
+    };
+
+    const float e = 1e-3f;
+    const float u0 = 0.0f;
+    const float u1 = 0.25f+e;
+    const float u2 = 0.5f-e;
+    const float u3 = 0.75f-e;
+    const float u4 = 1.0f;
+    const float v0 = 0.0f;
+    const float v1 = 1.0f/3.0f+e;
+    const float v2 = 2.0f/3.0f-e;
+    const float v3 = 1.0f;
+    skybox.texture_uv = {
+        {u1,v1}, {u2,v1}, {u2,v2}, {u1,v2},
+        {u1,v2}, {u2,v2}, {u2,v3}, {u1,v3},
+        {u2,v1}, {u2,v2}, {u3,v2}, {u3,v1},
+        {u1,v1}, {u0,v1}, {u1,v2}, {u0,v2},
+        {u4,v1}, {u3,v1}, {u3,v2}, {u4,v2},
+        {u1,v1}, {u2,v1}, {u2,v0}, {u1,v0}
+    };
 
 
+    return skybox;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+}
