@@ -378,7 +378,7 @@ int compute_cube(Cube cube, float isolevel, mesh &chunk, std::map<vec3, int> &co
         if(it != coordsToIdx.end()) {i2 = it->second;} else {i2 = last++; chunk.position.push_back(p2); coordsToIdx[p2]=i2;}
         it = coordsToIdx.find(p3);
         if(it != coordsToIdx.end()) {i3 = it->second;} else {i3 = last++; chunk.position.push_back(p3); coordsToIdx[p3]=i3;}
-        const index3 triangle = {i1, i2, i3};
+        const index3 triangle = {i3, i2, i1};
         chunk.connectivity.push_back(triangle);
         ntriang++;
     }

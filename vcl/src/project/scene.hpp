@@ -5,6 +5,7 @@
 #include "../helper_scene.hpp"
 #include "light.hpp"
 #include "fish.hpp"
+#include "cavern.hpp"
 
 
 #include <string>
@@ -41,8 +42,9 @@ struct scene_project
     void mouse_move(scene_structure& scene, GLFWwindow* window);
 
     // visual representation of a surface
-    vcl::mesh_drawable terrain;
-    GLuint texture_terrain;
+    Cavern cavern;
+    GLuint texture_cavern;
+    float distance_display_cavern;
 
     fishexp murene;
     fishexp requin;
