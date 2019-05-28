@@ -303,7 +303,7 @@ mesh create_chunk(vec3 origin, const int nb_cubes, const float cube_size, float 
         for (int j=0; j<nb_cubes; j++){
             for (int k=0; k<nb_cubes; k++){
                 for (int l=0; l<8; l++){
-                    cube.p[l] = origin + vec3(i*cube_size, j*cube_size, k*cube_size);
+                    cube.p[l] = origin + vec3(i*cube_size, j*cube_size, k*cube_size) + vec3(((l & 1) ^ ((l & 2)/2))*cube_size, (l & 2)/2*cube_size, (l & 4)/4*cube_size);
                     cube.val[l] = f(cube.p[l]);
                 }
                 ntriangles += compute_cube(cube, isolevel, chunk, coordsToIdx, last, edgeTable, triTable);
@@ -340,41 +340,29 @@ int compute_cube(Cube cube, float isolevel, mesh &chunk, std::map<vec3, int> &co
 
     /* Find the vertices where the surface intersects the cube */
     if (edgeTable[cubeindex] & 1)
-        points[0] =
-            interpolate(isolevel,cube.p[0],cube.p[1],cube.val[0],cube.val[1]);
+        points[0] = interpolate(isolevel,cube.p[0],cube.p[1],cube.val[0],cube.val[1]);
     if (edgeTable[cubeindex] & 2)
-        points[1] =
-            interpolate(isolevel,cube.p[1],cube.p[2],cube.val[1],cube.val[2]);
+        points[1] = interpolate(isolevel,cube.p[1],cube.p[2],cube.val[1],cube.val[2]);
     if (edgeTable[cubeindex] & 4)
-        points[2] =
-            interpolate(isolevel,cube.p[2],cube.p[3],cube.val[2],cube.val[3]);
+        points[2] = interpolate(isolevel,cube.p[2],cube.p[3],cube.val[2],cube.val[3]);
     if (edgeTable[cubeindex] & 8)
-        points[3] =
-            interpolate(isolevel,cube.p[3],cube.p[0],cube.val[3],cube.val[0]);
+        points[3] = interpolate(isolevel,cube.p[3],cube.p[0],cube.val[3],cube.val[0]);
     if (edgeTable[cubeindex] & 16)
-        points[4] =
-            interpolate(isolevel,cube.p[4],cube.p[5],cube.val[4],cube.val[5]);
+        points[4] = interpolate(isolevel,cube.p[4],cube.p[5],cube.val[4],cube.val[5]);
     if (edgeTable[cubeindex] & 32)
-        points[5] =
-            interpolate(isolevel,cube.p[5],cube.p[6],cube.val[5],cube.val[6]);
+        points[5] = interpolate(isolevel,cube.p[5],cube.p[6],cube.val[5],cube.val[6]);
     if (edgeTable[cubeindex] & 64)
-        points[6] =
-            interpolate(isolevel,cube.p[6],cube.p[7],cube.val[6],cube.val[7]);
+        points[6] = interpolate(isolevel,cube.p[6],cube.p[7],cube.val[6],cube.val[7]);
     if (edgeTable[cubeindex] & 128)
-        points[7] =
-            interpolate(isolevel,cube.p[7],cube.p[4],cube.val[7],cube.val[4]);
+        points[7] = interpolate(isolevel,cube.p[7],cube.p[4],cube.val[7],cube.val[4]);
     if (edgeTable[cubeindex] & 256)
-        points[8] =
-            interpolate(isolevel,cube.p[0],cube.p[4],cube.val[0],cube.val[4]);
+        points[8] = interpolate(isolevel,cube.p[0],cube.p[4],cube.val[0],cube.val[4]);
     if (edgeTable[cubeindex] & 512)
-        points[9] =
-            interpolate(isolevel,cube.p[1],cube.p[5],cube.val[1],cube.val[5]);
+        points[9] = interpolate(isolevel,cube.p[1],cube.p[5],cube.val[1],cube.val[5]);
     if (edgeTable[cubeindex] & 1024)
-        points[10] =
-            interpolate(isolevel,cube.p[2],cube.p[6],cube.val[2],cube.val[6]);
+        points[10] = interpolate(isolevel,cube.p[2],cube.p[6],cube.val[2],cube.val[6]);
     if (edgeTable[cubeindex] & 2048)
-        points[11] =
-            interpolate(isolevel,cube.p[3],cube.p[7],cube.val[3],cube.val[7]);
+        points[11] = interpolate(isolevel,cube.p[3],cube.p[7],cube.val[3],cube.val[7]);
 
     /* Create the triangle */
     int ntriang = 0;
@@ -390,7 +378,7 @@ int compute_cube(Cube cube, float isolevel, mesh &chunk, std::map<vec3, int> &co
         if(it != coordsToIdx.end()) {i2 = it->second;} else {i2 = last++; chunk.position.push_back(p2); coordsToIdx[p2]=i2;}
         it = coordsToIdx.find(p3);
         if(it != coordsToIdx.end()) {i3 = it->second;} else {i3 = last++; chunk.position.push_back(p3); coordsToIdx[p3]=i3;}
-        const index3 triangle = {i1, i2, i3};
+        const index3 triangle = {i3, i2, i1};
         chunk.connectivity.push_back(triangle);
         ntriang++;
     }
@@ -398,20 +386,20 @@ int compute_cube(Cube cube, float isolevel, mesh &chunk, std::map<vec3, int> &co
    return(ntriang);
 }
 
-vec3 interpolate(float isolevel, vec3 p1, vec3 p2, float val1, float val2)
-{
-    if (p2 < p1)
-    {
-        vec3 temp;
-        temp = p1;
-        p1 = p2;
-        p2 = temp;
-    }
+vec3 interpolate(float isolevel, vec3 p1, vec3 p2, float valp1, float valp2) {
+   float mu;
+   vec3 p;
 
-    vec3 p;
-    if(fabs(val1 - val2) > 0.00001)
-        p = (vec3)p1 + ((vec3)p2 - (vec3)p1)/(val2 - val1)*(isolevel - val1);
-    else
-        p = (vec3)p1;
-    return p;
+   if (fabs(isolevel-valp1) < 0.00001)
+      return(p1);
+   if (fabs(isolevel-valp2) < 0.00001)
+      return(p2);
+   if (fabs(valp1-valp2) < 0.00001)
+      return(p1);
+   mu = (isolevel - valp1) / (valp2 - valp1);
+   p.x = p1.x + mu * (p2.x - p1.x);
+   p.y = p1.y + mu * (p2.y - p1.y);
+   p.z = p1.z + mu * (p2.z - p1.z);
+
+   return p;
 }
