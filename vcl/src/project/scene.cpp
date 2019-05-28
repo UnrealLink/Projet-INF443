@@ -18,11 +18,13 @@ void scene_project::setup_data(std::map<std::string,GLuint>& , scene_structure& 
     terrain.uniform_parameter.color = {1.f, 1.f, 1.f};
     terrain.uniform_parameter.shading = {0.13f, 1.f, 0.f}; // non-specular terrain material
     texture_terrain = texture_gpu(image_load_png("data/gravel-stone.png"));
-    cavern = createCavern(vec3(0, 0, 0), 5, 20, 1.);
+
+    /*cavern = createCavern(vec3(0, 0, 0), 5, 20, 1.);
     cavern.uniform_parameter.color = {1.f, 1.f, 1.f};
     cavern.uniform_parameter.shading = {0.2f, 1.f, 0.f}; // non-specular terrain material
     texture_cavern = texture_gpu(image_load_png("data/gravel-stone.png"));
     distance_display_cavern = 200.;
+    */
 
     mur = load_murene("data/murene.obj");
     mur.uniform_parameter.translation = {0.f,0.f,0.f};
@@ -65,6 +67,7 @@ void scene_project::frame_draw(std::map<std::string,GLuint>& shaders, scene_stru
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,  GL_MIRRORED_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,  GL_MIRRORED_REPEAT);
     cavern.draw(shaders["underwater"], scene.camera, distance_display_cavern);
+    terrain.draw(shaders["underwater"], scene.camera);
     glBindTexture(GL_TEXTURE_2D, scene.texture_white);
 
     mur.ampl = timer.t;

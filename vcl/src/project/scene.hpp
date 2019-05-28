@@ -42,8 +42,9 @@ struct scene_project
     void mouse_move(scene_structure& scene, GLFWwindow* window);
 
     // visual representation of a surface
+    vcl::mesh_drawable terrain;
     Cavern cavern;
-    GLuint texture_cavern;
+    GLuint texture_cavern, texture_terrain;
     float distance_display_cavern;
 
     fishexp mur;
