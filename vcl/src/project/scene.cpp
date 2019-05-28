@@ -19,20 +19,22 @@ void scene_project::setup_data(std::map<std::string,GLuint>& , scene_structure& 
     terrain.uniform_parameter.shading = {0.13f, 1.f, 0.f}; // non-specular terrain material
     texture_terrain = texture_gpu(image_load_png("data/gravel-stone.png"));
 
-    mur = mesh_load_file_obj("data/murene.obj");
-    mur.uniform_parameter.rotation = rotation_from_axis_angle_mat3({1.f, 0.f, 0.f}, 3.141f/2.f);
+    mur = load_murene("data/murene.obj");
     mur.uniform_parameter.translation = {0.f,0.f,0.f};
     mur.uniform_parameter.shading = {0.6f, 0.5f, 0.f}; // non-specular terrain material
-    mur.uniform_parameter.color = {0.1f, .2f, .1f};
+    mur.uniform_parameter.color = {1.f, 1.f, 1.f};
 
-    requin = mesh_load_file_obj("data/requin.obj");
-    requin.uniform_parameter.translation = {0.f,0.f,2.f};
+    requin = load_requin("data/requin.obj");
+    requin.start = 0.5;
+    requin.uniform_parameter.shading = {0.6f, 0.5f, 0.f};
+    requin.uniform_parameter.translation = {0.f,0.4f,0.f};
     requin.uniform_parameter.color = {1.f, 1.f, 1.f};
+    requin.uniform_parameter.rotation = rotation_from_axis_angle_mat3({1.0f, .0f, .0f}, 3.14159f/2.f);
 
 
 
     // Setup initial camera mode and position
-    scene.camera.camera_type = camera_control_spherical_coordinates;
+    scene.camera.camera_type = camera_control_fps;
     scene.camera.scale = 10.0f;
     scene.camera.apply_rotation(0,0,0,1.2f);
 
@@ -48,6 +50,7 @@ void scene_project::frame_draw(std::map<std::string,GLuint>& shaders, scene_stru
     timer.update();
     set_gui();
     set_lights(shaders["underwater"], scene);
+    set_lights(shaders["requin"], scene);
 
     glEnable( GL_POLYGON_OFFSET_FILL ); // avoids z-fighting when displaying wireframe
 
@@ -59,10 +62,12 @@ void scene_project::frame_draw(std::map<std::string,GLuint>& shaders, scene_stru
     terrain.draw(shaders["underwater"], scene.camera);
     glBindTexture(GL_TEXTURE_2D, scene.texture_white);
 
-    //mur.ampl = timer.t;
-    mur.draw(shaders["mesh"], scene.camera);
+    mur.ampl = timer.t;
+    //mur.draw(shaders["deforme"], scene.camera);
 
-    requin.draw(shaders["mesh"], scene.camera);
+    requin.ampl = timer.t/3.f;
+    requin.draw(shaders["requin"], scene.camera);
+
 
     if( gui_scene.wireframe ){ // wireframe if asked from the GUI
         glPolygonOffset( 1.0, 1.0 );
@@ -78,15 +83,15 @@ void scene_project::set_lights(GLuint shader, scene_structure& scene)
     glUseProgram(shader); opengl_debug();
 
     vec3 dir = scene.camera.orientation*vec3(0.f, 0.f, -1.f);
-    light mainLight = light{ 0.2f*dir + scene.camera.camera_position() , vec3(1.f, 1.f, 1.f), 0.f, 1.f, 10.f};
+    light mainLight = light{ 0.2f*dir + scene.camera.camera_position() , vec3(1.f, 1.f, 1.f), 0.f, 10.f};
     light cristal[10];
-    cristal[0] = light{vec3(5.f, 0.f, 2.f), vec3(0.8f, 0.8f, 0.8f), 1.f, 1.f, 1.f};
+    cristal[0] = light{vec3(5.f, 0.f, 2.f), vec3(0.8f, 0.8f, 0.8f), 1.f, 1.f};
     for(int i = 1; i < 10; i++)
     {
         cristal[i] = switchedOffLight;
     }
 
-    spot spotlight = spot{scene.camera.camera_position() , dir, vec3(1.f, 1.f, 1.f), 0.99f, 0.98f, 1.f, 50.f};
+    spot spotlight = spot{scene.camera.camera_position() , dir, vec3(1.f, 1.f, 1.f), 0.99f, 0.98f, 0.f, 50.f};
     spotlight = switchedOffSpot;
 
     uniform(shader, "mainLight", mainLight); opengl_debug();

@@ -31,9 +31,8 @@ struct fishexp : public fish
     fishexp(const vcl::mesh& data);
     virtual vcl::vec3 func(float z);
 
-    float ampl;
+    float ampl, start;
 };
-
 
 
 #endif // FISH_HPP

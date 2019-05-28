@@ -29,7 +29,6 @@ void fish::draw(GLuint shader, const vcl::camera_scene& camera)
         glUseProgram(shader); opengl_debug();
 
     uniform(shader, "mesh_length", mesh_length);
-    //std::cout << "mesh length : " << mesh_length << std::endl;
     float step = mesh_length/float(ONDULANTLEN);
     vec3 p[ONDULANTLEN+4];
     vec3 last, cur;
@@ -51,19 +50,21 @@ void fish::draw(GLuint shader, const vcl::camera_scene& camera)
     mesh_drawable::draw(shader, camera);
 }
 
-fishexp::fishexp() : fish (), ampl(0.f)
+fishexp::fishexp() : fish (), ampl(0.f), start(0.f)
 {
 
 }
 
-fishexp::fishexp(const vcl::mesh& data) : fish (data), ampl(0.f)
+fishexp::fishexp(const vcl::mesh& data) : fish (data), ampl(0.f), start(0.f)
 {
 
 }
 
 vec3 fishexp::func(float z)
 {
-    return vec3(ampl*(z/mesh_length)*std::exp(z-mesh_length), 0.f, z);
+    if( z/mesh_length < start)
+        return vec3(0.f, 0.f, z);
+    return vec3(ampl*(z/mesh_length - start)*std::exp(4*(z-mesh_length)), 0.f, z);
 }
 
 

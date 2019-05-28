@@ -112,6 +112,7 @@ void mesh::fill_color_uniform(const vec3& c)
 {
     fill_color_uniform(vec4(c.x,c.y,c.z,1.0f));
 }
+
 void mesh::fill_color_uniform(const vec4& c)
 {
     const size_t N = position.size();
