@@ -5,7 +5,7 @@
 #include "../helper_scene.hpp"
 #include "light.hpp"
 #include "fish.hpp"
-
+#include "murene.hpp"
 
 #include <string>
 #include <map>
@@ -44,7 +44,7 @@ struct scene_project
     vcl::mesh_drawable terrain;
     GLuint texture_terrain;
 
-    fishexp murene;
+    fishexp mur;
     fishexp requin;
 
     gui_scene_structure gui_scene;

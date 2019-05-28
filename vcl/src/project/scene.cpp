@@ -6,7 +6,7 @@ float evaluateTerrain_z(float u, float v);
 vec3 evaluateTerrain(float u, float v, float terrain_size);
 vec2 evaluateTerrainTexture(float u, float v, int repeat);
 mesh createTerrain();
-//mesh createMurene();
+mesh createMurene();
 
 
 /** This function is called before the beginning of the animation loop
@@ -16,12 +16,19 @@ void scene_project::setup_data(std::map<std::string,GLuint>& , scene_structure& 
     // Create visual terrain surface
     terrain = createTerrain();
     terrain.uniform_parameter.color = {1.f, 1.f, 1.f};
-    terrain.uniform_parameter.shading = {0.2f, 1.f, 0.f}; // non-specular terrain material
+    terrain.uniform_parameter.shading = {0.13f, 1.f, 0.f}; // non-specular terrain material
     texture_terrain = texture_gpu(image_load_png("data/gravel-stone.png"));
 
-    murene = mesh_load_file_obj("data/murene.obj");
-    murene.uniform_parameter.translation = {0.f,0.f,0.f};
-    murene.uniform_parameter.shading = {0.6f, 0.5f, 0.f}; // non-specular terrain material
+    mur = mesh_load_file_obj("data/murene.obj");
+    mur.uniform_parameter.rotation = rotation_from_axis_angle_mat3({1.f, 0.f, 0.f}, 3.141f/2.f);
+    mur.uniform_parameter.translation = {0.f,0.f,0.f};
+    mur.uniform_parameter.shading = {0.6f, 0.5f, 0.f}; // non-specular terrain material
+    mur.uniform_parameter.color = {0.1f, .2f, .1f};
+
+    requin = mesh_load_file_obj("data/requin.obj");
+    requin.uniform_parameter.translation = {0.f,0.f,2.f};
+    requin.uniform_parameter.color = {1.f, 1.f, 1.f};
+
 
 
     // Setup initial camera mode and position
@@ -52,13 +59,15 @@ void scene_project::frame_draw(std::map<std::string,GLuint>& shaders, scene_stru
     terrain.draw(shaders["underwater"], scene.camera);
     glBindTexture(GL_TEXTURE_2D, scene.texture_white);
 
-    //murene.ampl = timer.t;
-    //murene.draw(shaders["mesh"], scene.camera);
+    //mur.ampl = timer.t;
+    mur.draw(shaders["mesh"], scene.camera);
+
+    requin.draw(shaders["mesh"], scene.camera);
 
     if( gui_scene.wireframe ){ // wireframe if asked from the GUI
         glPolygonOffset( 1.0, 1.0 );
         terrain.draw(shaders["wireframe"], scene.camera);
-        //murene.draw(shaders["wireframe"], scene.camera);
+        mur.draw(shaders["wireframe"], scene.camera);
 
     }
 
@@ -69,7 +78,7 @@ void scene_project::set_lights(GLuint shader, scene_structure& scene)
     glUseProgram(shader); opengl_debug();
 
     vec3 dir = scene.camera.orientation*vec3(0.f, 0.f, -1.f);
-    light mainLight = light{ 0.2f*dir + scene.camera.camera_position() , vec3(1.f, 1.f, 1.f), 10.f, 1.f, 1.f};
+    light mainLight = light{ 0.2f*dir + scene.camera.camera_position() , vec3(1.f, 1.f, 1.f), 0.f, 1.f, 10.f};
     light cristal[10];
     cristal[0] = light{vec3(5.f, 0.f, 2.f), vec3(0.8f, 0.8f, 0.8f), 1.f, 1.f, 1.f};
     for(int i = 1; i < 10; i++)
@@ -78,6 +87,7 @@ void scene_project::set_lights(GLuint shader, scene_structure& scene)
     }
 
     spot spotlight = spot{scene.camera.camera_position() , dir, vec3(1.f, 1.f, 1.f), 0.99f, 0.98f, 1.f, 50.f};
+    spotlight = switchedOffSpot;
 
     uniform(shader, "mainLight", mainLight); opengl_debug();
     for(int i = 0; i < 10; i++)
@@ -101,7 +111,7 @@ void scene_project::mouse_move(scene_structure& scene, GLFWwindow* window)
 {
 
 }
-/*
+
 // Evaluate height of the terrain for any (u,v) \in [0,1]
 float evaluateTerrain_z(float u, float v)
 {
@@ -180,18 +190,6 @@ mesh createTerrain()
 
     return terrain;
 }
-*/
-float f(vec3 p){
-    return perlin(0.05f * p.x, 0.05f *p.y, 0.05f *p.z);
-}
-
-mesh createTerrain()
-{
-    mesh terrain; // temporary terrain storage (CPU only)
-
-    terrain = create_chunk(vec3(0,0,0), 10, 1, f, 0.5);
-    return terrain;
-}
 
 mesh createMurene()
 {
@@ -225,3 +223,23 @@ mesh createMurene()
 
     return murene;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
