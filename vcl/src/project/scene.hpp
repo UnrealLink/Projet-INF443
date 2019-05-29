@@ -7,11 +7,16 @@
 #include "fish.hpp"
 #include "cavern.hpp"
 #include "loader.hpp"
+#include "terrain.hpp"
+#include "waterbox.hpp"
+#include "perlin3DTexture.hpp"
 
 #include <string>
 #include <map>
 #include <vector>
 #include <cmath>
+
+using namespace vcl;
 
 struct gui_scene_structure
 {
@@ -44,21 +49,18 @@ struct scene_project
     void mouse_move(scene_structure& scene, GLFWwindow* window);
 
     // visual representation of a surface
-    vcl::mesh_drawable terrain;
     Cavern cavern;
-    GLuint texture_cavern, texture_terrain, texture_perlin;
+    GLuint texture_cavern, texture_perlin, texture_waterbox, texture_terrain;
     float distance_display_cavern;
 
     fishexp mur;
     fishexp requin;
 
-    vcl::mesh_drawable waterbox;
-    GLuint texture_waterbox;
-    void display_waterbox(std::map<std::string,GLuint>& shaders, scene_structure& scene);
+    mesh_drawable waterbox;
 
     gui_scene_structure gui_scene;
 
-    vcl::timer_interval_reversing timer;
+    timer_interval_reversing timer;
 };
 
 typedef struct scene_project scene_project;

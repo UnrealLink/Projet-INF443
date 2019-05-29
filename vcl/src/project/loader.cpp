@@ -1,7 +1,5 @@
 #include "loader.hpp"
 
-using namespace vcl;
-
 mesh load_murene(const std::string& filename, float scale)
 {
     mesh m = mesh_load_file_obj(filename);
@@ -20,7 +18,7 @@ mesh load_murene(const std::string& filename, float scale)
     return m;
 }
 
-vcl::mesh load_requin(const std::string& filename, float scale)
+mesh load_requin(const std::string& filename, float scale)
 {
     mesh m = mesh_load_file_obj(filename);
     vec3 v1, v2;

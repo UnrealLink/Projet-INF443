@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CAVERN_HPP
+#define CAVERN_HPP
 
 #include "../vcl/vcl.hpp"
 #include "../helper_scene.hpp"
@@ -25,3 +26,5 @@ struct Cavern {
 };
 
 Cavern createCavern(vec3 origin, int nb_chunks, int chunk_size, float cube_size, float f(vec3)=perlin3D, float isolevel=0.5);
+
+#endif // CAVERN_HPP
