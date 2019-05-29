@@ -7,7 +7,7 @@ vec3 evaluateTerrain(float u, float v, float terrain_size);
 vec2 evaluateTerrainTexture(float u, float v, int repeat);
 mesh createTerrain();
 mesh createMurene();
-mesh create_skybox();
+mesh create_waterbox();
 
 
 /** This function is called before the beginning of the animation loop
@@ -20,11 +20,11 @@ void scene_project::setup_data(std::map<std::string,GLuint>& , scene_structure& 
     terrain.uniform_parameter.shading = {0.13f, 1.f, 0.f}; // non-specular terrain material
     texture_terrain = texture_gpu(image_load_png("data/gravel-stone.png"));
 
-    cavern = createCavern(vec3(-40, -40, -40), 5, 20, 1., perlin3D, 0.5);
+    cavern = createCavern(vec3(50, 50, 0), 5, 20, -1, perlin3D, 0.5);
     cavern.uniform_parameter.color = {1.f, 1.f, 1.f};
     cavern.uniform_parameter.shading = {0.13f, 1.f, 0.f}; // non-specular terrain material
-    texture_cavern = texture_gpu(image_load_png("data/gravel-stone.png"));
-    distance_display_cavern = 200.;
+    texture_cavern = texture_gpu(image_load_png("data/rock.png"));
+    distance_display_cavern = 500.;
 
 
     mur = load_murene("data/murene.obj");
@@ -32,17 +32,17 @@ void scene_project::setup_data(std::map<std::string,GLuint>& , scene_structure& 
     mur.uniform_parameter.shading = {0.6f, 0.5f, 0.f}; // non-specular terrain material
     mur.uniform_parameter.color = {1.f, 1.f, 1.f};
 
-    requin = load_requin("data/requin.obj");
+    requin = load_requin("data/requin.obj", 50.f);
     requin.start = 0.5;
     requin.uniform_parameter.shading = {0.6f, 0.5f, 0.f};
     requin.uniform_parameter.translation = {0.f,0.4f,0.f};
     requin.uniform_parameter.color = {1.f, 1.f, 1.f};
     requin.uniform_parameter.rotation = rotation_from_axis_angle_mat3({1.0f, .0f, .0f}, 3.14159f/2.f);
 
-    skybox = create_skybox();
-    skybox.uniform_parameter.shading = {1,0,0};
-    skybox.uniform_parameter.rotation = rotation_from_axis_angle_mat3({1,0,0},-3.014f/2.0f);
-    texture_skybox = texture_gpu(image_load_png("data/skybox.png"));
+    waterbox = create_waterbox();
+    waterbox.uniform_parameter.shading = {1,0,0};
+    waterbox.uniform_parameter.rotation = rotation_from_axis_angle_mat3({1,0,0},-3.014f/2.0f);
+    texture_waterbox = texture_gpu(image_load_png("data/waterbox.png"));
 
 
     // Setup initial camera mode and position
@@ -53,7 +53,7 @@ void scene_project::setup_data(std::map<std::string,GLuint>& , scene_structure& 
 
     timer.t_min = -10.f;
     timer.t_max = 10.f;
-    timer.scale = 2.f;
+    timer.scale = 10.f;
 }
 
 /** This function is called at each frame of the animation loop.
@@ -68,18 +68,19 @@ void scene_project::frame_draw(std::map<std::string,GLuint>& shaders, scene_stru
     glEnable( GL_POLYGON_OFFSET_FILL ); // avoids z-fighting when displaying wireframe
 
     // Display terrain
+    /*
     glPolygonOffset( 1.0, 1.0 );
-    /*glBindTexture(GL_TEXTURE_2D, texture_terrain);
+    glBindTexture(GL_TEXTURE_2D, texture_terrain);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,  GL_MIRRORED_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,  GL_MIRRORED_REPEAT);
     terrain.draw(shaders["underwater"], scene.camera);*/
     glBindTexture(GL_TEXTURE_2D, texture_cavern);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,  GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,  GL_MIRRORED_REPEAT);
-    cavern.draw(shaders["underwater"], scene.camera, distance_display_cavern);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,   GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,   GL_REPEAT);
+    cavern.draw(shaders["mesh"], scene.camera, distance_display_cavern);
     glBindTexture(GL_TEXTURE_2D, scene.texture_white);
 
-    display_skybox(shaders, scene);
+    display_waterbox(shaders, scene);
 
     mur.ampl = timer.t;
     //mur.draw(shaders["deforme"], scene.camera);
@@ -125,7 +126,7 @@ void scene_project::set_lights(GLuint shader, scene_structure& scene)
 void scene_project::set_gui()
 {
     ImGui::Checkbox("Wireframe", &gui_scene.wireframe);
-    ImGui::Checkbox("Skybox", &gui_scene.skybox);
+    ImGui::Checkbox("waterbox", &gui_scene.waterbox);
 }
 
 void scene_project::mouse_click(scene_structure& scene, GLFWwindow* window, int button, int action, int mods)
@@ -250,19 +251,19 @@ mesh createMurene()
     return murene;
 }
 
-void scene_project::display_skybox(std::map<std::string,GLuint>& shaders, scene_structure& scene)
+void scene_project::display_waterbox(std::map<std::string,GLuint>& shaders, scene_structure& scene)
 {
-    if(gui_scene.skybox)
+    if(gui_scene.waterbox)
     {
-        glBindTexture(GL_TEXTURE_2D,texture_skybox);
-        skybox.uniform_parameter.scaling = 150.0f;
-        skybox.uniform_parameter.translation = scene.camera.camera_position() + vec3(0,0,-50.0f);
-        skybox.draw(shaders["mesh"], scene.camera);
+        glBindTexture(GL_TEXTURE_2D,texture_waterbox);
+        waterbox.uniform_parameter.scaling = 150.0f;
+        waterbox.uniform_parameter.translation = scene.camera.camera_position() + vec3(0,0,-50.0f);
+        waterbox.draw(shaders["underwater"], scene.camera);
         glBindTexture(GL_TEXTURE_2D,scene.texture_white);
     }
 }
 
-vcl::mesh create_skybox()
+vcl::mesh create_waterbox()
 {
     const vec3 p000 = {-1,-1,-1};
     const vec3 p001 = {-1,-1, 1};
@@ -273,9 +274,9 @@ vcl::mesh create_skybox()
     const vec3 p110 = { 1, 1,-1};
     const vec3 p111 = { 1, 1, 1};
 
-    mesh skybox;
+    mesh waterbox;
 
-    skybox.position = {
+    waterbox.position = {
         p000, p100, p110, p010,
         p010, p110, p111, p011,
         p100, p110, p111, p101,
@@ -285,7 +286,7 @@ vcl::mesh create_skybox()
     };
 
 
-    skybox.connectivity = {
+    waterbox.connectivity = {
         {0,1,2}, {0,2,3}, {4,5,6}, {4,6,7},
         {8,11,10}, {8,10,9}, {17,16,19}, {17,19,18},
         {23,22,21}, {23,21,20}, {13,12,14}, {13,14,15}
@@ -301,7 +302,7 @@ vcl::mesh create_skybox()
     const float v1 = 1.0f/3.0f+e;
     const float v2 = 2.0f/3.0f-e;
     const float v3 = 1.0f;
-    skybox.texture_uv = {
+    waterbox.texture_uv = {
         {u1,v1}, {u2,v1}, {u2,v2}, {u1,v2},
         {u1,v2}, {u2,v2}, {u2,v3}, {u1,v3},
         {u2,v1}, {u2,v2}, {u3,v2}, {u3,v1},
@@ -311,6 +312,6 @@ vcl::mesh create_skybox()
     };
 
 
-    return skybox;
+    return waterbox;
 
 }

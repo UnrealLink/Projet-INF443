@@ -11,11 +11,12 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <cmath>
 
 struct gui_scene_structure
 {
     bool wireframe;
-    bool skybox = true;
+    bool waterbox = true;
 };
 
 
@@ -51,9 +52,9 @@ struct scene_project
     fishexp mur;
     fishexp requin;
 
-    vcl::mesh_drawable skybox;
-    GLuint texture_skybox;
-    void display_skybox(std::map<std::string,GLuint>& shaders, scene_structure& scene);
+    vcl::mesh_drawable waterbox;
+    GLuint texture_waterbox;
+    void display_waterbox(std::map<std::string,GLuint>& shaders, scene_structure& scene);
 
     gui_scene_structure gui_scene;
 
