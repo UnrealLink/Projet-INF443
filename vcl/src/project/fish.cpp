@@ -4,12 +4,12 @@
 
 using namespace vcl;
 
-fish::fish() : mesh_drawable(), mesh_length(0.f)
+fish::fish() : mesh_drawable(), mesh_length(0.f), embossMinMap(0.f, 0.f, 0.f), embossMaxMap(1.f, 1.f, 1.f)
 {
 
 }
 
-fish::fish(const vcl::mesh& data) : mesh_drawable(data), mesh_length(0.f)
+fish::fish(const vcl::mesh& data) : mesh_drawable(data), mesh_length(0.f), embossMinMap(0.f, 0.f, 0.f), embossMaxMap(1.f, 1.f, 1.f)
 {
     for(vec3 v : data.position)
     {
@@ -29,6 +29,9 @@ void fish::draw(GLuint shader, const vcl::camera_scene& camera)
         glUseProgram(shader); opengl_debug();
 
     uniform(shader, "mesh_length", mesh_length);
+    uniform(shader, "embossMinMap", embossMinMap);
+    uniform(shader, "embossMaxMap", embossMaxMap);
+
     float step = mesh_length/float(ONDULANTLEN);
     vec3 p[ONDULANTLEN+4];
     vec3 last, cur;
