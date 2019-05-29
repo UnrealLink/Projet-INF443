@@ -75,7 +75,6 @@ void scene_project::frame_draw(std::map<std::string,GLuint>& shaders, scene_stru
     glEnable( GL_POLYGON_OFFSET_FILL ); // avoids z-fighting when displaying wireframe
 
     // Display terrain
-    /*
     glPolygonOffset( 1.0, 1.0 );
     glBindTexture(GL_TEXTURE_2D, texture_terrain);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,  GL_MIRRORED_REPEAT);
@@ -272,15 +271,8 @@ mesh createMurene()
     return murene;
 }
 
-<<<<<<<
-void scene_project::display_waterbox(std::map<std::string,GLuint>& shaders, scene_structure& scene)
-=======
 GLuint createPerlin3DTexture()
->>>>>>>
 {
-<<<<<<<
-    if(gui_scene.waterbox)
-=======
     GLuint id = 0;
     glGenTextures(1,&id);
     glBindTexture(GL_TEXTURE_3D,id);
@@ -288,15 +280,7 @@ GLuint createPerlin3DTexture()
     const int n = 16;
     GLfloat data[n*n*n*4];
     for (size_t i = 0; i < n*n*n*4; i = i+4)
->>>>>>>
     {
-<<<<<<<
-        glBindTexture(GL_TEXTURE_2D,texture_waterbox);
-        waterbox.uniform_parameter.scaling = 150.0f;
-        waterbox.uniform_parameter.translation = scene.camera.camera_position() + vec3(0,0,-50.0f);
-        waterbox.draw(shaders["underwater"], scene.camera);
-        glBindTexture(GL_TEXTURE_2D,scene.texture_white);
-=======
         float u = (i%n)/float(n);
         float v = ((i/n)%n)/float(n);
         float w = i/(n*n);
@@ -304,7 +288,6 @@ GLuint createPerlin3DTexture()
         data[i+1] = perlin(w, u, v);
         data[i+2] = perlin(v, w, u);
         data[i+3] = 1.f;
->>>>>>>
     }
 
     // Send texture on GPU
@@ -322,6 +305,18 @@ GLuint createPerlin3DTexture()
 
     std::cout << "created" << std::endl;
     return id;
+}
+
+void scene_project::display_waterbox(std::map<std::string,GLuint>& shaders, scene_structure& scene)
+{
+    if(gui_scene.waterbox)
+    {
+        glBindTexture(GL_TEXTURE_2D,texture_waterbox);
+        waterbox.uniform_parameter.scaling = 150.0f;
+        waterbox.uniform_parameter.translation = scene.camera.camera_position() + vec3(0,0,-50.0f);
+        waterbox.draw(shaders["underwater"], scene.camera);
+        glBindTexture(GL_TEXTURE_2D,scene.texture_white);
+    }
 }
 
 vcl::mesh create_waterbox()
@@ -388,18 +383,3 @@ void scene_project::display_skybox(std::map<std::string,GLuint>& shaders, scene_
         glBindTexture(GL_TEXTURE_2D,scene.texture_white);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
