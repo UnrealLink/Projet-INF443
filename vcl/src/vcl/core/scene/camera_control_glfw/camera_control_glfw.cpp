@@ -107,16 +107,20 @@ void camera_control_glfw::update_mouse_click(camera_scene& , GLFWwindow* , int ,
 
 }
 
-void camera_control_glfw::update_key(camera_scene& camera, GLFWwindow* window, int key, int scancode, int action, int mods)
+void camera_control_glfw::update_key(camera_scene& camera, GLFWwindow* window, int key, int scancode, int action, int mods, bool collision(camera_scene&))
 {
     if(key == GLFW_KEY_UP || key == GLFW_KEY_W)
-        camera.apply_translation_orthogonal_to_screen_plane(0.1f);
+        camera.apply_translation_orthogonal_to_screen_plane(1.f);
+        if (collision(camera)) camera.apply_translation_orthogonal_to_screen_plane(-1.f);
     if(key == GLFW_KEY_DOWN || key == GLFW_KEY_S)
-        camera.apply_translation_orthogonal_to_screen_plane(-0.1f);
+        camera.apply_translation_orthogonal_to_screen_plane(-1.f);
+        if (collision(camera)) camera.apply_translation_orthogonal_to_screen_plane(1.f);
     if(key == GLFW_KEY_LEFT || key == GLFW_KEY_A)
-        camera.apply_translation_in_screen_plane(0.1f, 0.f);
+        camera.apply_translation_in_screen_plane(1.f, 0.f);
+        if (collision(camera)) camera.apply_translation_in_screen_plane(-1.f, 0.f);
     if(key == GLFW_KEY_RIGHT || key == GLFW_KEY_D)
-        camera.apply_translation_in_screen_plane(-0.1f, 0.f);
+        camera.apply_translation_in_screen_plane(-1.f, 0.f);
+        if (collision(camera)) camera.apply_translation_in_screen_plane(+1.f, 0.f);
 
 }
 

@@ -133,11 +133,12 @@ void mouse_click_callback(GLFWwindow* window, int button, int action, int mods)
     exercise.mouse_click(scene, window,button,action,mods);
 }
 
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    scene.camera_control.update_key(scene.camera, window, key, scancode, action, mods);
+bool collision(camera_scene& camera){
+    //return perlin3D(camera.camera_position()) < 0.5;
+    return false;
 }
 
-
-
-
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    scene.camera_control.update_key(scene.camera, window, key, scancode, action, mods, collision);
+}
