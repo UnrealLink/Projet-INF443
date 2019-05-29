@@ -371,15 +371,3 @@ vcl::mesh create_waterbox()
     return waterbox;
 
 }
-
-void scene_project::display_skybox(std::map<std::string,GLuint>& shaders, scene_structure& scene)
-{
-    if(gui_scene.skybox)
-    {
-        glBindTexture(GL_TEXTURE_2D,texture_skybox);
-        skybox.uniform_parameter.scaling = 150.0f;
-        skybox.uniform_parameter.translation = scene.camera.camera_position() + vec3(0,0,-50.0f);
-        skybox.draw(shaders["mesh"], scene.camera);
-        glBindTexture(GL_TEXTURE_2D,scene.texture_white);
-    }
-}
