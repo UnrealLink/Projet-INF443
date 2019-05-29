@@ -33,6 +33,7 @@ void Cavern::draw(GLuint shader, const camera_scene& camera, float distance){
     // camera orientation
     // vec3 dir = normalize(camera.orientation*vec3(0.f, 0.f, -1.f));
     // choosing which chunks to draw
+    /*
     ChunkIndex current_idx;
     float chunk_size = this->nb_cubes*this->cube_size;
     current_idx.i = (int)(camera.camera_position().x-this->origin.x)/chunk_size;
@@ -41,6 +42,7 @@ void Cavern::draw(GLuint shader, const camera_scene& camera, float distance){
     if (current_idx.i != this->current_idx.i || current_idx.j != this->current_idx.j || current_idx.k != this->current_idx.k){
         this->chunks = std::vector<Chunk>(this->nb_chunks*this->nb_chunks*this->nb_chunks);
     }
+    */
     std::vector<ChunkIndex> idxs = this->getChunksAround(camera.camera_position(), distance);
     for (ChunkIndex idx : idxs){
         if (chunks[idx.i*this->nb_chunks*this->nb_chunks+idx.j*this->nb_chunks+idx.k].initialized){
@@ -106,9 +108,11 @@ Cavern createCavern(vec3 origin, int nb_chunks, int nb_cubes, float cube_size, f
 
 void Cavern::addChunk(ChunkIndex idx){
     Chunk chunk;
-    float chunk_size = this->nb_cubes*this->cube_size;
-    chunk = createChunk(this->origin+vec3(idx.i*chunk_size, idx.j*chunk_size, idx.k*chunk_size), this->nb_cubes, this->cube_size, f);
-    this->chunks[idx.i*this->nb_chunks*this->nb_chunks+idx.j*this->nb_chunks+idx.k] = chunk;
+    float chunk_size = nb_cubes*cube_size;
+    //std::cout << this->origin+vec3(idx.i*chunk_size, idx.j*chunk_size, idx.k*chunk_size) << std::endl;
+    chunk = createChunk(origin+vec3(idx.i*chunk_size, idx.j*chunk_size, idx.k*chunk_size), nb_cubes, cube_size, f);
+    std::cout << f(origin+vec3(idx.i*chunk_size, idx.j*chunk_size, idx.k*chunk_size)) << std::endl;
+    chunks[idx.i*nb_chunks*nb_chunks+idx.j*nb_chunks+idx.k] = chunk;
 }
 
 Chunk createChunk(vec3 origin, int nb_cubes, float cube_size, float f(vec3)){
