@@ -2,13 +2,17 @@
 
 using namespace vcl;
 
+
 mesh load_murene(const std::string& filename)
 {
     mesh m = mesh_load_file_obj(filename);
     vec3 v1, v2;
     bbox(m, v1, v2);
     for(vec3& v : m.position)
+    {
         v.z = -(v.z - v2.z);
+        m.texture_uv.push_back(vec2(v.x + v.y, v.z));
+    }
     for(index3& c: m.connectivity)
     {
         c = index3{c[0], c[2], c[1]};
@@ -22,7 +26,10 @@ vcl::mesh load_requin(const std::string& filename)
     vec3 v1, v2;
     bbox(m, v1, v2);
     for(vec3& v : m.position)
+    {
         v.z = -(v.z - v2.z);
+        m.texture_uv.push_back(vec2(v.x + v.y, v.z));
+    }
     for(index3& c: m.connectivity)
     {
         c = index3{c[0], c[2], c[1]};

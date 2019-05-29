@@ -44,7 +44,7 @@ struct scene_project
     // visual representation of a surface
     vcl::mesh_drawable terrain;
     Cavern cavern;
-    GLuint texture_cavern, texture_terrain;
+    GLuint texture_cavern, texture_terrain, texture_perlin;
     float distance_display_cavern;
 
     fishexp mur;

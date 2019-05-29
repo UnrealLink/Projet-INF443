@@ -25,11 +25,14 @@ void scene_project::setup_data(std::map<std::string,GLuint>& , scene_structure& 
     texture_cavern = texture_gpu(image_load_png("data/gravel-stone.png"));
     distance_display_cavern = 200.;
 */
+    float embossStrength = 0.2;
 
     mur = load_murene("data/murene.obj");
     mur.uniform_parameter.translation = {0.f,0.f,0.f};
-    mur.uniform_parameter.shading = {0.6f, 0.5f, 0.f}; // non-specular terrain material
-    mur.uniform_parameter.color = {1.f, 1.f, 1.f};
+    mur.uniform_parameter.shading = {0.13f, 0.7f, 0.3f};
+    mur.uniform_parameter.color = {55/255.f, 55/255.f, 0/255.f};
+    mur.embossMinMap = vec3(1.f- embossStrength, 1.f- embossStrength, 1.f- embossStrength);
+    mur.embossMaxMap = vec3(1.f+ embossStrength, 1.f+ embossStrength, 1.f+ embossStrength);
 
     requin = load_requin("data/requin.obj");
     requin.start = 0.5;
@@ -37,7 +40,10 @@ void scene_project::setup_data(std::map<std::string,GLuint>& , scene_structure& 
     requin.uniform_parameter.translation = {0.f,0.4f,0.f};
     requin.uniform_parameter.color = {1.f, 1.f, 1.f};
     requin.uniform_parameter.rotation = rotation_from_axis_angle_mat3({1.0f, .0f, .0f}, 3.14159f/2.f);
-
+    embossStrength = 0.1;
+    requin.embossMinMap = vec3(1.f- embossStrength, 1.f- embossStrength, 1.f- embossStrength);
+    requin.embossMaxMap = vec3(1.f+ embossStrength, 1.f+ embossStrength, 1.f+ embossStrength);
+    texture_perlin = texture_gpu(image_load_png("data/perlin.png"));
 
 
     // Setup initial camera mode and position
@@ -67,14 +73,25 @@ void scene_project::frame_draw(std::map<std::string,GLuint>& shaders, scene_stru
     glBindTexture(GL_TEXTURE_2D, texture_terrain);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,  GL_MIRRORED_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,  GL_MIRRORED_REPEAT);
+    glUseProgram(shaders["underwater"]);
+    uniform(shaders["underwater"], "embossMinMap", vec3(0.f, 0.f, 0.f));
+    uniform(shaders["underwater"], "embossMaxMap", vec3(1.f, 1.f, 1.f));
     terrain.draw(shaders["underwater"], scene.camera);
     glBindTexture(GL_TEXTURE_2D, scene.texture_white);
 
     mur.ampl = timer.t;
-    //mur.draw(shaders["deforme"], scene.camera);
+    glBindTexture(GL_TEXTURE_2D, texture_perlin);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,  GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,  GL_REPEAT);
+    //mur.draw(shaders["underwater"], scene.camera);
+    glBindTexture(GL_TEXTURE_2D, scene.texture_white);
 
     requin.ampl = timer.t/10.f;
+    glBindTexture(GL_TEXTURE_2D, texture_perlin);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,  GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,  GL_REPEAT);
     requin.draw(shaders["requin"], scene.camera);
+    glBindTexture(GL_TEXTURE_2D, scene.texture_white);
 
 
     if( gui_scene.wireframe ){ // wireframe if asked from the GUI

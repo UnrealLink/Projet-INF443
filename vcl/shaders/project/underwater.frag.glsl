@@ -37,13 +37,15 @@ uniform vec3 color; // object color
 uniform float ambiant  = 0.2f;
 uniform float diffuse  = 0.8f;
 uniform float specular = 0.5f;
+uniform vec3 embossMinMap = vec3(0.f);
+uniform vec3 embossMaxMap = vec3(1.f);
 
 uniform light mainLight;
 uniform light sideLight[10];
 uniform spot spotlight;
 
 uniform vec3 color_fond = vec3(0.08f, 0.08f, 0.2f);
-uniform vec3 attenuationColor = vec3(1.f, 1.f, 0.3f);
+uniform vec3 attenuationColor = vec3(1.f, 0.4f, 0.2f);
 
 void lightEclairage(in light l, in fragment_data frag, inout vec3 diffuse_ecl, inout vec3 specular_ecl);
 void spotEclairage(in spot l, in fragment_data frag, inout vec3 diffuse_ecl);
@@ -51,6 +53,7 @@ void spotEclairage(in spot l, in fragment_data frag, inout vec3 diffuse_ecl);
 void main()
 {
     vec4 color_texture = texture(texture_sampler, fragment.texture_uv);
+    color_texture.rgb = mix(embossMinMap, embossMaxMap, color_texture.rgb);
     vec3 diffuse_ecl = vec3(0.f), specular_ecl = vec3(0.f);
     lightEclairage(mainLight, fragment, diffuse_ecl, specular_ecl);
     for(int i = 0; i < 10; i++)

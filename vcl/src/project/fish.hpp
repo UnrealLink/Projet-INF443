@@ -10,6 +10,7 @@
 struct fish : public vcl::mesh_drawable
 {
     float mu;
+    vcl::vec3 embossMinMap, embossMaxMap;
 
     fish();
     fish(const vcl::mesh& data);
