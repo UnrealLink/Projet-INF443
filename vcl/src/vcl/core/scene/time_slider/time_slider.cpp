@@ -20,7 +20,7 @@ float timer_interval_reversing::update()
 
     const float time_current = static_cast<float>(glfwGetTime());
     const float dt = scale*(time_current-time_previous);
-    assert(dt<t_max-t_min);
+    //assert(dt<t_max-t_min);
 
     const float direction = forward_direction==true? 1.0f : -1.0f ;
     time_previous = time_current;
@@ -48,7 +48,7 @@ timer_interval::timer_interval()
 float timer_interval::update()
 {
     const float dt = timer_basic::update();
-    assert(dt<t_max-t_min);
+    //assert(dt<t_max-t_min);
 
     if( t>=t_max )
         t -= (t_max-t_min);

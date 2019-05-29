@@ -7,24 +7,43 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <cmath>
+
+using namespace vcl;
 
 struct Chunk{
+    bool initialized = false;
     vec3 center;
     float size;
-    vcl::mesh_gpu terrain;
+    mesh_gpu terrain;
+};
+
+Chunk createChunk(vec3 origin, int nb_cubes, float cube_size, float f(vec3));
+
+struct ChunkIndex{
+    int i;
+    int j;
+    int k;
 };
 
 float perlin3D(vec3 p);
+float isovalue(vec3 p);
 
 struct Cavern {
-
     std::vector<Chunk> chunks;
+    vec3 origin;
+    int nb_chunks;
+    int nb_cubes;
+    float cube_size;
+    ChunkIndex current_idx;
+    float (*f)(vec3);
     drawable_uniform uniform_parameter;
     void draw(GLuint shader, const camera_scene& camera, float distance);
-    Chunk createChunk(vec3 origin, int chunk_size, float cube_size, float f(vec3), float isolevel);
+    void addChunk(ChunkIndex idx);
+    std::vector<ChunkIndex> getChunksAround(vec3 p, float distance);
 
 };
 
-Cavern createCavern(vec3 origin, int nb_chunks, int chunk_size, float cube_size, float f(vec3)=perlin3D, float isolevel=0.5);
+Cavern createCavern(vec3 origin, int nb_chunks, int nb_cubes, float cube_size, float f(vec3)=isovalue);
 
 #endif // CAVERN_HPP

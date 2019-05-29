@@ -14,11 +14,12 @@ void scene_project::setup_data(std::map<std::string,GLuint>& , scene_structure& 
     texture_terrain = texture_gpu(image_load_png("data/gravel-stone.png"));
     */
 
-    cavern = createCavern(vec3(50, 50, 0), 5, 20, -1, perlin3D, 0.5);
+    cavern = createCavern(vec3(0, 0, 0), 10, 20, 1, isovalue);
+    std::cout << "done" << std::endl;
     cavern.uniform_parameter.color = {1.f, 1.f, 1.f};
     cavern.uniform_parameter.shading = {0.13f, 1.f, 0.f}; // non-specular terrain material
     texture_cavern = texture_gpu(image_load_png("data/rock.png"));
-    distance_display_cavern = 500.;
+    distance_display_cavern = 60.;
     float embossStrength = 0.2;
 
     // Create murene
@@ -30,7 +31,7 @@ void scene_project::setup_data(std::map<std::string,GLuint>& , scene_structure& 
     mur.embossMaxMap = vec3(1.f+ embossStrength, 1.f+ embossStrength, 1.f+ embossStrength);
 
     // Create requin
-    requin = load_requin("data/requin.obj", 50.f);
+    requin = load_requin("data/requin.obj", 1.f);
     requin.start = 0.5;
     requin.uniform_parameter.shading = {0.6f, 0.5f, 0.f};
     requin.uniform_parameter.translation = {0.f,0.4f,0.f};
@@ -56,9 +57,9 @@ void scene_project::setup_data(std::map<std::string,GLuint>& , scene_structure& 
     scene.camera.apply_translation_orthogonal_to_screen_plane(-5.f);
 
     // Setup timer for ondulations
-    timer.t_min = -10.f;
-    timer.t_max = 10.f;
-    timer.scale = 10.f;
+    timer.t_min = -1000.f;
+    timer.t_max = 1000.f;
+    timer.scale = 1000.f;
 }
 
 /** This function is called at each frame of the animation loop.
@@ -90,9 +91,11 @@ void scene_project::frame_draw(std::map<std::string,GLuint>& shaders, scene_stru
 
     // Display waterbox
     if (gui_scene.waterbox) {
+        glBindTexture(GL_TEXTURE_2D, texture_waterbox);
         waterbox.uniform_parameter.scaling = 150.0f;
-        waterbox.uniform_parameter.translation = scene.camera.camera_position() + vec3(0,0,-300.0f);
+        waterbox.uniform_parameter.translation = scene.camera.camera_position() + vec3(0,0,-50.0f);
         waterbox.draw(shaders["underwater"], scene.camera);
+        glBindTexture(GL_TEXTURE_2D, scene.texture_white);
     }
 
     // Display murene
@@ -104,7 +107,7 @@ void scene_project::frame_draw(std::map<std::string,GLuint>& shaders, scene_stru
     glBindTexture(GL_TEXTURE_2D, scene.texture_white);
 
     // Display requin
-    requin.ampl = timer.t/10.f;
+    requin.ampl = timer.t/20.f;
     glUseProgram(shaders["requin"]);
     /*
     glBindTexture(GL_TEXTURE_3D, texture_perlin); opengl_debug();
@@ -136,7 +139,7 @@ void scene_project::set_lights(GLuint shader, scene_structure& scene)
     glUseProgram(shader); opengl_debug();
 
     vec3 dir = scene.camera.orientation*vec3(0.f, 0.f, -1.f);
-    light mainLight = light{ 0.2f*dir + scene.camera.camera_position() , vec3(1.f, 1.f, 1.f), 0.f, 10.f};
+    light mainLight = light{ 0.2f*dir + scene.camera.camera_position() , vec3(1.f, 1.f, 1.f), 0.f, 100.f};
     light cristal[10];
     cristal[0] = light{vec3(5.f, 0.f, 2.f), vec3(0.8f, 0.8f, 0.8f), 1.f, 1.f};
     for(int i = 1; i < 10; i++)

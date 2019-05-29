@@ -134,8 +134,7 @@ void mouse_click_callback(GLFWwindow* window, int button, int action, int mods)
 }
 
 bool collision(camera_scene& camera){
-    //return perlin3D(camera.camera_position()) < 0.5;
-    return false;
+    return isovalue(camera.camera_position()) < 0.;
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)

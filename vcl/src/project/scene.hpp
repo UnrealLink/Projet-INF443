@@ -20,7 +20,7 @@ using namespace vcl;
 
 struct gui_scene_structure
 {
-    bool wireframe;
+    bool wireframe = false;
     bool waterbox = true;
 };
 
