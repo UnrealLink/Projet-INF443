@@ -8,7 +8,7 @@ vec2 evaluateTerrainTexture(float u, float v, int repeat);
 mesh createTerrain();
 mesh createMurene();
 mesh create_waterbox();
-
+GLuint createPerlin3DTexture();
 
 /** This function is called before the beginning of the animation loop
     It is used to initialize all part-specific data */
@@ -25,12 +25,15 @@ void scene_project::setup_data(std::map<std::string,GLuint>& , scene_structure& 
     cavern.uniform_parameter.shading = {0.13f, 1.f, 0.f}; // non-specular terrain material
     texture_cavern = texture_gpu(image_load_png("data/rock.png"));
     distance_display_cavern = 500.;
+    float embossStrength = 0.2;
 
 
     mur = load_murene("data/murene.obj");
     mur.uniform_parameter.translation = {0.f,0.f,0.f};
-    mur.uniform_parameter.shading = {0.6f, 0.5f, 0.f}; // non-specular terrain material
-    mur.uniform_parameter.color = {1.f, 1.f, 1.f};
+    mur.uniform_parameter.shading = {0.13f, 0.7f, 0.3f};
+    mur.uniform_parameter.color = {55/255.f, 55/255.f, 0/255.f};
+    mur.embossMinMap = vec3(1.f- embossStrength, 1.f- embossStrength, 1.f- embossStrength);
+    mur.embossMaxMap = vec3(1.f+ embossStrength, 1.f+ embossStrength, 1.f+ embossStrength);
 
     requin = load_requin("data/requin.obj", 50.f);
     requin.start = 0.5;
@@ -38,12 +41,16 @@ void scene_project::setup_data(std::map<std::string,GLuint>& , scene_structure& 
     requin.uniform_parameter.translation = {0.f,0.4f,0.f};
     requin.uniform_parameter.color = {1.f, 1.f, 1.f};
     requin.uniform_parameter.rotation = rotation_from_axis_angle_mat3({1.0f, .0f, .0f}, 3.14159f/2.f);
+    embossStrength = 0.1;
+    requin.embossMinMap = vec3(1.f- embossStrength, 1.f- embossStrength, 1.f- embossStrength);
+    requin.embossMaxMap = vec3(1.f+ embossStrength, 1.f+ embossStrength, 1.f+ embossStrength);
+    glEnable(GL_TEXTURE_3D);
+    texture_perlin = createPerlin3DTexture();
 
     waterbox = create_waterbox();
     waterbox.uniform_parameter.shading = {1,0,0};
     waterbox.uniform_parameter.rotation = rotation_from_axis_angle_mat3({1,0,0},-3.014f/2.0f);
     texture_waterbox = texture_gpu(image_load_png("data/waterbox.png"));
-
 
     // Setup initial camera mode and position
     scene.camera.camera_type = camera_control_fps;
@@ -73,7 +80,10 @@ void scene_project::frame_draw(std::map<std::string,GLuint>& shaders, scene_stru
     glBindTexture(GL_TEXTURE_2D, texture_terrain);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,  GL_MIRRORED_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,  GL_MIRRORED_REPEAT);
-    terrain.draw(shaders["underwater"], scene.camera);*/
+    glUseProgram(shaders["underwater"]);
+    uniform(shaders["underwater"], "embossMinMap", vec3(0.f, 0.f, 0.f));
+    uniform(shaders["underwater"], "embossMaxMap", vec3(1.f, 1.f, 1.f));
+    terrain.draw(shaders["underwater"], scene.camera);
     glBindTexture(GL_TEXTURE_2D, texture_cavern);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,   GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,   GL_REPEAT);
@@ -83,10 +93,21 @@ void scene_project::frame_draw(std::map<std::string,GLuint>& shaders, scene_stru
     display_waterbox(shaders, scene);
 
     mur.ampl = timer.t;
-    //mur.draw(shaders["deforme"], scene.camera);
+    glBindTexture(GL_TEXTURE_2D, texture_perlin);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,  GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,  GL_REPEAT);
+    //mur.draw(shaders["underwater"], scene.camera);
+    glBindTexture(GL_TEXTURE_2D, scene.texture_white);
 
     requin.ampl = timer.t/10.f;
+    glUseProgram(shaders["requin"]);
+    glBindTexture(GL_TEXTURE_3D, texture_perlin); opengl_debug();
+    std::cout << "bint" << std::endl;
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S,  GL_REPEAT); opengl_debug();
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T,  GL_REPEAT); opengl_debug();
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R,  GL_REPEAT); opengl_debug();
     requin.draw(shaders["requin"], scene.camera);
+    glBindTexture(GL_TEXTURE_2D, scene.texture_white);
 
 
     if( gui_scene.wireframe ){ // wireframe if asked from the GUI
@@ -251,16 +272,56 @@ mesh createMurene()
     return murene;
 }
 
+<<<<<<<
 void scene_project::display_waterbox(std::map<std::string,GLuint>& shaders, scene_structure& scene)
+=======
+GLuint createPerlin3DTexture()
+>>>>>>>
 {
+<<<<<<<
     if(gui_scene.waterbox)
+=======
+    GLuint id = 0;
+    glGenTextures(1,&id);
+    glBindTexture(GL_TEXTURE_3D,id);
+
+    const int n = 16;
+    GLfloat data[n*n*n*4];
+    for (size_t i = 0; i < n*n*n*4; i = i+4)
+>>>>>>>
     {
+<<<<<<<
         glBindTexture(GL_TEXTURE_2D,texture_waterbox);
         waterbox.uniform_parameter.scaling = 150.0f;
         waterbox.uniform_parameter.translation = scene.camera.camera_position() + vec3(0,0,-50.0f);
         waterbox.draw(shaders["underwater"], scene.camera);
         glBindTexture(GL_TEXTURE_2D,scene.texture_white);
+=======
+        float u = (i%n)/float(n);
+        float v = ((i/n)%n)/float(n);
+        float w = i/(n*n);
+        data[i] = perlin(u,v,w);
+        data[i+1] = perlin(w, u, v);
+        data[i+2] = perlin(v, w, u);
+        data[i+3] = 1.f;
+>>>>>>>
     }
+
+    // Send texture on GPU
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, n, n, n, 0, GL_RGBA,  GL_FLOAT, &data[0]); opengl_debug();
+    glGenerateMipmap(GL_TEXTURE_3D); opengl_debug();
+
+    // Set default texture behavior
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT); opengl_debug();
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT); opengl_debug();
+
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); opengl_debug();
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); opengl_debug();
+
+    glBindTexture(GL_TEXTURE_3D,0);
+
+    std::cout << "created" << std::endl;
+    return id;
 }
 
 vcl::mesh create_waterbox()
@@ -315,3 +376,30 @@ vcl::mesh create_waterbox()
     return waterbox;
 
 }
+
+void scene_project::display_skybox(std::map<std::string,GLuint>& shaders, scene_structure& scene)
+{
+    if(gui_scene.skybox)
+    {
+        glBindTexture(GL_TEXTURE_2D,texture_skybox);
+        skybox.uniform_parameter.scaling = 150.0f;
+        skybox.uniform_parameter.translation = scene.camera.camera_position() + vec3(0,0,-50.0f);
+        skybox.draw(shaders["mesh"], scene.camera);
+        glBindTexture(GL_TEXTURE_2D,scene.texture_white);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

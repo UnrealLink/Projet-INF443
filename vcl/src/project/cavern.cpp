@@ -10,7 +10,11 @@ void Cavern::draw(GLuint shader, const camera_scene& camera, float distance){
     if(shader!=GLuint(current_shader))
         glUseProgram(shader); opengl_debug();
 
+    //uniform vec3 embossMinMap = vec3(0.f);
+    //uniform vec3 embossMaxMap = vec3(1.f);
 
+    uniform(shader, "embossMinMap", vec3(0.f, 0.f, 0.f));
+    uniform(shader, "embossMaxMap", vec3(1.f, 1.f, 1.f));
 
     uniform(shader, "rotation", uniform_parameter.rotation); opengl_debug();
     uniform(shader, "translation", uniform_parameter.translation); opengl_debug();

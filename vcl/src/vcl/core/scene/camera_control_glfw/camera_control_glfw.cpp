@@ -122,6 +122,11 @@ void camera_control_glfw::update_key(camera_scene& camera, GLFWwindow* window, i
         camera.apply_translation_in_screen_plane(-1.f, 0.f);
         if (collision(camera)) camera.apply_translation_in_screen_plane(+1.f, 0.f);
 
+    if(key == GLFW_KEY_F)
+        camera.camera_type = camera_control_fps;
+    if(key == GLFW_KEY_ESCAPE)
+        camera.camera_type = camera_control_spherical_coordinates;
+
 }
 
 

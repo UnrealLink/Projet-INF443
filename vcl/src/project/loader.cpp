@@ -7,9 +7,11 @@ mesh load_murene(const std::string& filename, float scale)
     mesh m = mesh_load_file_obj(filename);
     vec3 v1, v2;
     bbox(m, v1, v2);
-    for(vec3& v : m.position){
+    for(vec3& v : m.position)
+    {
         v.z = -(v.z - v2.z);
         v *= scale;
+        m.texture_uv.push_back(vec2(v.x + v.y, v.z));
     }
     for(index3& c: m.connectivity)
     {
@@ -23,9 +25,11 @@ vcl::mesh load_requin(const std::string& filename, float scale)
     mesh m = mesh_load_file_obj(filename);
     vec3 v1, v2;
     bbox(m, v1, v2);
-    for(vec3& v : m.position) {
+    for(vec3& v : m.position)
+    {
         v.z = -(v.z - v2.z);
         v *= scale;
+        m.texture_uv.push_back(vec2(v.x + v.y, v.z));
     }
     for(index3& c: m.connectivity)
     {
