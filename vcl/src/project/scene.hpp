@@ -10,6 +10,7 @@
 #include "terrain.hpp"
 #include "waterbox.hpp"
 #include "perlin3DTexture.hpp"
+#include "cristal.hpp"
 
 #include <string>
 #include <map>
