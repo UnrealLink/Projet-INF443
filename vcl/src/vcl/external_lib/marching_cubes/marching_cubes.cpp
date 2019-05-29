@@ -373,11 +373,11 @@ int compute_cube(Cube cube, float isolevel, mesh &chunk, std::map<vec3, int> &co
         unsigned int i1, i2, i3;
         std::map<vec3, int>::iterator it;
         it = coordsToIdx.find(p1);
-        if(it != coordsToIdx.end()) {i1 = it->second;} else {i1 = last++; chunk.position.push_back(p1); coordsToIdx[p1]=i1;}
+        if(it != coordsToIdx.end()) {i1 = it->second;} else {i1 = last++; chunk.position.push_back(p1); chunk.texture_uv.push_back(evaluateTexture(p1)); coordsToIdx[p1]=i1;}
         it = coordsToIdx.find(p2);
-        if(it != coordsToIdx.end()) {i2 = it->second;} else {i2 = last++; chunk.position.push_back(p2); coordsToIdx[p2]=i2;}
+        if(it != coordsToIdx.end()) {i2 = it->second;} else {i2 = last++; chunk.position.push_back(p2); chunk.texture_uv.push_back(evaluateTexture(p2)); coordsToIdx[p2]=i2;}
         it = coordsToIdx.find(p3);
-        if(it != coordsToIdx.end()) {i3 = it->second;} else {i3 = last++; chunk.position.push_back(p3); coordsToIdx[p3]=i3;}
+        if(it != coordsToIdx.end()) {i3 = it->second;} else {i3 = last++; chunk.position.push_back(p3); chunk.texture_uv.push_back(evaluateTexture(p3)); coordsToIdx[p3]=i3;}
         const index3 triangle = {i3, i2, i1};
         chunk.connectivity.push_back(triangle);
         ntriang++;
@@ -402,4 +402,11 @@ vec3 interpolate(float isolevel, vec3 p1, vec3 p2, float valp1, float valp2) {
    p.z = p1.z + mu * (p2.z - p1.z);
 
    return p;
+}
+
+vec2 evaluateTexture(vec3 p){
+    vec2 uv;
+    uv.x = 0.1*(p.x + p.y);
+    uv.y = 0.1*(p.z + p.y);
+    return uv;
 }

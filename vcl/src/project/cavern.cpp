@@ -30,16 +30,16 @@ void Cavern::draw(GLuint shader, const camera_scene& camera, float distance){
     vec3 dir = camera.orientation*vec3(0.f, 0.f, -1.f);
     // choosing which chunks to draw
     for (int i=0; i<chunks.size(); i++){
-        if (norm((chunks[i].center-camera.camera_position())) < distance && dot(dir, chunks[i].center-camera.camera_position()) > 0) {
+        /*if (norm((chunks[i].center-camera.camera_position())) < distance && dot(dir, chunks[i].center-camera.camera_position()) > 0) {
             vcl::draw(chunks[i].terrain);
-        }
+        }*/
+        vcl::draw(chunks[i].terrain);
     }
 }
 
 Chunk Cavern::createChunk(vec3 origin, int chunk_size, float cube_size, float f(vec3), float isolevel){
     Chunk chunk;
-    mesh terrain; // temporary terrain storage (CPU only)
-    chunk.terrain = (mesh_gpu)create_chunk(origin, chunk_size, cube_size, f, isolevel);
+    chunk.terrain = (mesh_gpu)create_chunk(origin, chunk_size, cube_size, f, isolevel);;
     chunk.center = origin + vec3(chunk_size*cube_size/2, chunk_size*cube_size/2, chunk_size*cube_size/2);
     chunk.size = chunk_size*cube_size;
     return chunk;
@@ -60,5 +60,9 @@ Cavern createCavern(vec3 origin, int nb_chunks, int chunk_size, float cube_size,
 }
 
 float perlin3D(vec3 p){
-    return perlin(0.05f*p.x, 0.05f*p.y, 0.05f*p.z);
+    if (norm(p) < 50 && p.z < 0) {
+        return perlin(0.05f*p.x, 0.05f*p.y, 0.05f*p.z, 3, 0.1f);
+    } else {
+        return 0.4;
+    }
 }
