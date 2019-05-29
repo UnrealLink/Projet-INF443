@@ -28,7 +28,7 @@ struct spot
     float radius;
 };
 
-uniform sampler2D texture_sampler;
+uniform sampler3D texture_sampler;
 
 out vec4 FragColor;
 
@@ -57,7 +57,7 @@ void spotEclairage(in spot l, in fragment_data frag, inout vec3 diffuse_ecl);
 
 void main()
 {
-    vec4 color_texture = texture(texture_sampler, fragment.texture_uv);
+    vec4 color_texture = texture(texture_sampler, fragment.mesh_position.xyz);
     vec4 sidetexture;
     if(fragment.mesh_position.y + fragment.mesh_position.z*0.25f  + abs(fragment.mesh_position.x)*0.07 + color_texture.r*0.01 > 0.016f)
         sidetexture = vec4(bleu, 1.f);

@@ -8,7 +8,7 @@ vec2 evaluateTerrainTexture(float u, float v, int repeat);
 mesh createTerrain();
 mesh createMurene();
 mesh create_skybox();
-
+GLuint createPerlin3DTexture();
 
 /** This function is called before the beginning of the animation loop
     It is used to initialize all part-specific data */
@@ -45,7 +45,8 @@ void scene_project::setup_data(std::map<std::string,GLuint>& , scene_structure& 
     embossStrength = 0.1;
     requin.embossMinMap = vec3(1.f- embossStrength, 1.f- embossStrength, 1.f- embossStrength);
     requin.embossMaxMap = vec3(1.f+ embossStrength, 1.f+ embossStrength, 1.f+ embossStrength);
-    texture_perlin = texture_gpu(image_load_png("data/perlin.png"));
+    glEnable(GL_TEXTURE_3D);
+    texture_perlin = createPerlin3DTexture();
 
     skybox = create_skybox();
     skybox.uniform_parameter.shading = {1,0,0};
@@ -76,7 +77,7 @@ void scene_project::frame_draw(std::map<std::string,GLuint>& shaders, scene_stru
 
     // Display terrain
     glPolygonOffset( 1.0, 1.0 );
-    /*glBindTexture(GL_TEXTURE_2D, texture_terrain);
+    glBindTexture(GL_TEXTURE_2D, texture_terrain);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,  GL_MIRRORED_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,  GL_MIRRORED_REPEAT);
     glUseProgram(shaders["underwater"]);
@@ -99,9 +100,12 @@ void scene_project::frame_draw(std::map<std::string,GLuint>& shaders, scene_stru
     glBindTexture(GL_TEXTURE_2D, scene.texture_white);
 
     requin.ampl = timer.t/10.f;
-    glBindTexture(GL_TEXTURE_2D, texture_perlin);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,  GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,  GL_REPEAT);
+    glUseProgram(shaders["requin"]);
+    glBindTexture(GL_TEXTURE_3D, texture_perlin); opengl_debug();
+    std::cout << "bint" << std::endl;
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S,  GL_REPEAT); opengl_debug();
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T,  GL_REPEAT); opengl_debug();
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R,  GL_REPEAT); opengl_debug();
     requin.draw(shaders["requin"], scene.camera);
     glBindTexture(GL_TEXTURE_2D, scene.texture_white);
 
@@ -268,16 +272,40 @@ mesh createMurene()
     return murene;
 }
 
-void scene_project::display_skybox(std::map<std::string,GLuint>& shaders, scene_structure& scene)
+GLuint createPerlin3DTexture()
 {
-    if(gui_scene.skybox)
+    GLuint id = 0;
+    glGenTextures(1,&id);
+    glBindTexture(GL_TEXTURE_3D,id);
+
+    const int n = 16;
+    GLfloat data[n*n*n*4];
+    for (size_t i = 0; i < n*n*n*4; i = i+4)
     {
-        glBindTexture(GL_TEXTURE_2D,texture_skybox);
-        skybox.uniform_parameter.scaling = 150.0f;
-        skybox.uniform_parameter.translation = scene.camera.camera_position() + vec3(0,0,-50.0f);
-        skybox.draw(shaders["mesh"], scene.camera);
-        glBindTexture(GL_TEXTURE_2D,scene.texture_white);
+        float u = (i%n)/float(n);
+        float v = ((i/n)%n)/float(n);
+        float w = i/(n*n);
+        data[i] = perlin(u,v,w);
+        data[i+1] = perlin(w, u, v);
+        data[i+2] = perlin(v, w, u);
+        data[i+3] = 1.f;
     }
+
+    // Send texture on GPU
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, n, n, n, 0, GL_RGBA,  GL_FLOAT, &data[0]); opengl_debug();
+    glGenerateMipmap(GL_TEXTURE_3D); opengl_debug();
+
+    // Set default texture behavior
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT); opengl_debug();
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT); opengl_debug();
+
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); opengl_debug();
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); opengl_debug();
+
+    glBindTexture(GL_TEXTURE_3D,0);
+
+    std::cout << "created" << std::endl;
+    return id;
 }
 
 vcl::mesh create_skybox()
@@ -332,3 +360,30 @@ vcl::mesh create_skybox()
     return skybox;
 
 }
+
+void scene_project::display_skybox(std::map<std::string,GLuint>& shaders, scene_structure& scene)
+{
+    if(gui_scene.skybox)
+    {
+        glBindTexture(GL_TEXTURE_2D,texture_skybox);
+        skybox.uniform_parameter.scaling = 150.0f;
+        skybox.uniform_parameter.translation = scene.camera.camera_position() + vec3(0,0,-50.0f);
+        skybox.draw(shaders["mesh"], scene.camera);
+        glBindTexture(GL_TEXTURE_2D,scene.texture_white);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
