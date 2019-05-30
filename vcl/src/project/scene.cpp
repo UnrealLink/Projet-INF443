@@ -119,6 +119,19 @@ void scene_project::frame_draw(std::map<std::string,GLuint>& shaders, scene_stru
     glBindTexture(GL_TEXTURE_2D, texture_perlin);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,  GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,  GL_REPEAT);
+    
+    // compute requin movement
+    pos_requin = requin.uniform_parameter.translation;
+    grad_requin.x = (isovalue(pos_requin + h*vec3(1, 0, 0)) - isovalue(pos_requin - h*vec3(1, 0, 0))) / (2*h);
+    grad_requin.y = (isovalue(pos_requin + h*vec3(0, 1, 0)) - isovalue(pos_requin - h*vec3(0, 1, 0))) / (2*h);
+    grad_requin.z = (isovalue(pos_requin + h*vec3(0, 0, 1)) - isovalue(pos_requin - h*vec3(0, 0, 1))) / (2*h);
+    speed = normalize(speed + a*grad_requin);
+    requin.uniform_parameter.translation += h*speed;
+    /*
+    mat3 rotx(1, 0, 0, 0, std::cos((float)i), -std::sin((float)i), 0, std::sin((float)i), std::cos((float)i));
+    mat3 roty(std::cos((float)i), 0, std::sin((float)i), 0, 1, 0, -std::sin((float)i), 0, std::cos((float)i));
+    mat3 rotz(std::cos((float)i), -std::sin((float)i), 0, std::sin((float)i), std::cos((float)i), 0, 0, 0, 1);
+    */
     requin.draw(shaders["requin"], scene.camera);
     glBindTexture(GL_TEXTURE_2D, scene.texture_white);
 

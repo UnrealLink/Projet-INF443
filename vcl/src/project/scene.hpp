@@ -56,6 +56,11 @@ struct scene_project
 
     fishexp mur;
     fishexp requin;
+    vec3 pos_requin;
+    vec3 grad_requin;
+    vec3 speed = vec3(1,1,1);
+    float h = 0.01;
+    float a = 0.1;
 
     mesh_drawable waterbox;
 
