@@ -1,6 +1,6 @@
 #include "cavern.hpp"
 
-void Cavern::draw(GLuint shader, const camera_scene& camera, float distance){
+void Cavern::draw(GLuint shader, const scene_structure& scene, GLuint texture_cavern, GLuint texture_cristal, float distance){
 
     // set uniform parameters
     opengl_debug();
@@ -16,19 +16,8 @@ void Cavern::draw(GLuint shader, const camera_scene& camera, float distance){
     uniform(shader, "embossMinMap", vec3(0.f, 0.f, 0.f));
     uniform(shader, "embossMaxMap", vec3(1.f, 1.f, 1.f));
 
-    uniform(shader, "rotation", uniform_parameter.rotation); opengl_debug();
-    uniform(shader, "translation", uniform_parameter.translation); opengl_debug();
-    uniform(shader, "color", uniform_parameter.color); opengl_debug();
-    uniform(shader, "scaling", uniform_parameter.scaling); opengl_debug();
-    uniform(shader, "scaling_axis", uniform_parameter.scaling_axis); opengl_debug();
-
-    uniform(shader,"perspective",camera.perspective.matrix()); opengl_debug();
-    uniform(shader,"view",camera.view_matrix()); opengl_debug();
-    uniform(shader,"camera_position",camera.camera_position()); opengl_debug();
-
-    uniform(shader, "ambiant", uniform_parameter.shading.ambiant); opengl_debug();
-    uniform(shader, "diffuse", uniform_parameter.shading.diffuse); opengl_debug();
-    uniform(shader, "specular", uniform_parameter.shading.specular); opengl_debug();
+    mat3 real_rot = uniform_parameter.rotation;
+    vec3 real_trans = uniform_parameter.translation;
 
     // camera orientation
     // vec3 dir = normalize(camera.orientation*vec3(0.f, 0.f, -1.f));
@@ -43,13 +32,38 @@ void Cavern::draw(GLuint shader, const camera_scene& camera, float distance){
         chunks = std::vector<Chunk>(nb_chunks*nb_chunks*nb_chunks);
     }
     */
-    std::vector<ChunkIndex> idxs = getChunksAround(camera.camera_position(), distance);
+    std::vector<ChunkIndex> idxs = getChunksAround(scene.camera.camera_position(), distance);
+    Chunk current_chunk;
     for (ChunkIndex idx : idxs){
         if (chunks[idx.i*nb_chunks*nb_chunks+idx.j*nb_chunks+idx.k].initialized){
-            chunks[idx.i*nb_chunks*nb_chunks+idx.j*nb_chunks+idx.k].terrain.draw(shader, camera);
+            current_chunk = chunks[idx.i*nb_chunks*nb_chunks+idx.j*nb_chunks+idx.k];
+            glBindTexture(GL_TEXTURE_2D, texture_cavern);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,   GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,   GL_REPEAT);
+            current_chunk.terrain.mesh_visual("cavern").draw(shader, scene.camera);
+            glBindTexture(GL_TEXTURE_2D, scene.texture_white);
+            if (current_chunk.cristal){
+                glBindTexture(GL_TEXTURE_2D, texture_cristal);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,   GL_REPEAT);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,   GL_REPEAT);
+                current_chunk.terrain.mesh_visual("cristal").draw(shader, scene.camera);
+            }
+            glBindTexture(GL_TEXTURE_2D, scene.texture_white);
         } else {
-            addChunk(idx);
-            chunks[idx.i*nb_chunks*nb_chunks+idx.j*nb_chunks+idx.k].terrain.draw(shader, camera);
+            addChunk(idx);Chunk current_chunk = chunks[idx.i*nb_chunks*nb_chunks+idx.j*nb_chunks+idx.k];
+            current_chunk = chunks[idx.i*nb_chunks*nb_chunks+idx.j*nb_chunks+idx.k];
+            glBindTexture(GL_TEXTURE_2D, texture_cavern);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,   GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,   GL_REPEAT);
+            current_chunk.terrain.mesh_visual("cavern").draw(shader, scene.camera);
+            glBindTexture(GL_TEXTURE_2D, scene.texture_white);
+            if (current_chunk.cristal){
+                glBindTexture(GL_TEXTURE_2D, texture_cristal);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,   GL_REPEAT);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,   GL_REPEAT);
+                current_chunk.terrain.mesh_visual("cristal").draw(shader, scene.camera);
+            }
+            glBindTexture(GL_TEXTURE_2D, scene.texture_white);
         }
     }
 }
@@ -138,6 +152,10 @@ Chunk createChunk(vec3 origin, int nb_cubes, float cube_size, float f(vec3)){
                  p10.y, -p20bis.y, n.y,
                  p10.z, -p20bis.z, n.z);
         chunk.terrain.add_element(create_cristal(), "cristal", "cavern", chunk.cristal_pos, rot);
+        chunk.terrain.mesh_visual("cristal").uniform_parameter.rotation = chunk.terrain.get_rotation_global("cristal");
+        chunk.terrain.mesh_visual("cristal").uniform_parameter.translation = chunk.terrain.get_translation_global("cristal");
+        chunk.terrain.mesh_visual("cristal").uniform_parameter.color = {0.f, 0.f, 1.f};
+        chunk.cristal = true;
     }
     //
     chunk.center = origin + vec3(nb_cubes*cube_size/2, nb_cubes*cube_size/2, nb_cubes*cube_size/2);
@@ -150,5 +168,5 @@ float perlin3D(vec3 p){
 }
 
 float isovalue(vec3 p){
-    return perlin(0.05f*p.x, 0.05f*p.y, 0.05f*p.z, 3, 0.1f) - 0.5;
+    return perlin(0.05f*p.x, 0.05f*p.y, 0.05f*p.z, 5, 0.1f) - 0.5;
 }

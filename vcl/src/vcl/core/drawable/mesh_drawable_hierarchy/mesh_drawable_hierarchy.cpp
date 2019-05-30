@@ -40,6 +40,16 @@ const vcl::mat3& mesh_drawable_hierarchy::rotation(const std::string& name) cons
 {
     return rotation_local.at(index_of_element(name));
 }
+const vcl::vec3& mesh_drawable_hierarchy::get_translation_global(const std::string& name)
+{
+    update_hierarchy();
+    return translation_global.at(index_of_element(name));
+}
+const vcl::mat3& mesh_drawable_hierarchy::get_rotation_global(const std::string& name)
+{
+    update_hierarchy();
+    return rotation_global.at(index_of_element(name));
+}
 const vcl::mesh_drawable& mesh_drawable_hierarchy::mesh_visual(const std::string& name) const
 {
     return visual.at(index_of_element(name));

@@ -17,6 +17,7 @@ struct Chunk{
     bool initialized = false;
     vec3 center;
     float size;
+    bool cristal = false;
     vec3 cristal_pos;
     mesh_drawable_hierarchy terrain;
 };
@@ -41,7 +42,7 @@ struct Cavern {
     ChunkIndex current_idx;
     float (*f)(vec3);
     drawable_uniform uniform_parameter;
-    void draw(GLuint shader, const camera_scene& camera, float distance);
+    void draw(GLuint shader, const scene_structure& scene, GLuint texture_cavern, GLuint texture_cristal, float distance);
     void addChunk(ChunkIndex idx);
     std::vector<ChunkIndex> getChunksAround(vec3 p, float distance);
 

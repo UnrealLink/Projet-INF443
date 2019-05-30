@@ -81,11 +81,13 @@ void scene_project::frame_draw(std::map<std::string,GLuint>& shaders, scene_stru
     uniform(shaders["underwater"], "embossMaxMap", vec3(1.f, 1.f, 1.f));
     terrain.draw(shaders["underwater"], scene.camera);
     */
+   /*
     glBindTexture(GL_TEXTURE_2D, texture_cavern);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,   GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,   GL_REPEAT);
+    */
     glUseProgram(shaders["underwater"]);
-    cavern.draw(shaders["underwater"], scene.camera, distance_display_cavern);
+    cavern.draw(shaders["underwater"], scene, texture_cavern, scene.texture_white, distance_display_cavern);
     glBindTexture(GL_TEXTURE_2D, scene.texture_white);
 
     // Display waterbox
@@ -125,7 +127,7 @@ void scene_project::frame_draw(std::map<std::string,GLuint>& shaders, scene_stru
         glEnable( GL_POLYGON_OFFSET_FILL ); // avoids z-fighting when displaying wireframe
         glPolygonOffset( 1.0, 1.0 );
         //terrain.draw(shaders["wireframe"], scene.camera);
-        cavern.draw(shaders["wireframe"], scene.camera, distance_display_cavern);
+        cavern.draw(shaders["wireframe"], scene, texture_cavern, scene.texture_white, distance_display_cavern);
         //mur.draw(shaders["wireframe"], scene.camera);
         requin.draw(shaders["wireframe"], scene.camera);
 

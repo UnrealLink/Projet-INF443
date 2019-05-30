@@ -34,6 +34,8 @@ public:
 
     const vcl::vec3& translation(const std::string& name) const;
     const vcl::mat3& rotation(const std::string& name) const;
+    const vcl::vec3& get_translation_global(const std::string& name);
+    const vcl::mat3& get_rotation_global(const std::string& name);
     const vcl::mesh_drawable& mesh_visual(const std::string& name) const;
 
 
