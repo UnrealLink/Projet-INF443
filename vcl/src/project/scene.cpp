@@ -14,7 +14,7 @@ void scene_project::setup_data(std::map<std::string,GLuint>& , scene_structure& 
     texture_terrain = texture_gpu(image_load_png("data/gravel-stone.png"));
     */
 
-    cavern = createCavern(vec3(0, 0, 0), 50, 5, 1, isovalue);
+    cavern = createCavern(vec3(0, 0, 0), 50, 10, 1, isovalue);
     cavern.uniform_parameter.color = {1.f, 1.f, 1.f};
     cavern.uniform_parameter.shading = {0.13f, 1.f, 0.f}; // non-specular terrain material
     texture_cavern = texture_gpu(image_load_png("data/rock.png"));

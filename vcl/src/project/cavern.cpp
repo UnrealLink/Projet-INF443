@@ -35,21 +35,21 @@ void Cavern::draw(GLuint shader, const camera_scene& camera, float distance){
     // choosing which chunks to draw
     /*
     ChunkIndex current_idx;
-    float chunk_size = this->nb_cubes*this->cube_size;
-    current_idx.i = (int)(camera.camera_position().x-this->origin.x)/chunk_size;
-    current_idx.j = (int)(camera.camera_position().y-this->origin.y)/chunk_size;
-    current_idx.k = (int)(camera.camera_position().z-this->origin.z)/chunk_size;
-    if (current_idx.i != this->current_idx.i || current_idx.j != this->current_idx.j || current_idx.k != this->current_idx.k){
-        this->chunks = std::vector<Chunk>(this->nb_chunks*this->nb_chunks*this->nb_chunks);
+    float chunk_size = nb_cubes*cube_size;
+    current_idx.i = (int)(camera.camera_position().x-origin.x)/chunk_size;
+    current_idx.j = (int)(camera.camera_position().y-origin.y)/chunk_size;
+    current_idx.k = (int)(camera.camera_position().z-origin.z)/chunk_size;
+    if (current_idx.i != current_idx.i || current_idx.j != current_idx.j || current_idx.k != current_idx.k){
+        chunks = std::vector<Chunk>(nb_chunks*nb_chunks*nb_chunks);
     }
     */
-    std::vector<ChunkIndex> idxs = this->getChunksAround(camera.camera_position(), distance);
+    std::vector<ChunkIndex> idxs = getChunksAround(camera.camera_position(), distance);
     for (ChunkIndex idx : idxs){
-        if (chunks[idx.i*this->nb_chunks*this->nb_chunks+idx.j*this->nb_chunks+idx.k].initialized){
-            vcl::draw(chunks[idx.i*this->nb_chunks*this->nb_chunks+idx.j*this->nb_chunks+idx.k].terrain);
+        if (chunks[idx.i*nb_chunks*nb_chunks+idx.j*nb_chunks+idx.k].initialized){
+            chunks[idx.i*nb_chunks*nb_chunks+idx.j*nb_chunks+idx.k].terrain.draw(shader, camera);
         } else {
-            this->addChunk(idx);
-            vcl::draw(chunks[idx.i*this->nb_chunks*this->nb_chunks+idx.j*this->nb_chunks+idx.k].terrain);
+            addChunk(idx);
+            chunks[idx.i*nb_chunks*nb_chunks+idx.j*nb_chunks+idx.k].terrain.draw(shader, camera);
         }
     }
 }
@@ -57,10 +57,10 @@ void Cavern::draw(GLuint shader, const camera_scene& camera, float distance){
 std::vector<ChunkIndex> Cavern::getChunksAround(vec3 p, float distance){
     std::vector<ChunkIndex> idxs;
     ChunkIndex idx;
-    float chunk_size = this->nb_cubes*this->cube_size;
-    idx.i = (int)(p.x-this->origin.x)/chunk_size;
-    idx.j = (int)(p.y-this->origin.y)/chunk_size;
-    idx.k = (int)(p.z-this->origin.z)/chunk_size;
+    float chunk_size = nb_cubes*cube_size;
+    idx.i = (int)(p.x-origin.x)/chunk_size;
+    idx.j = (int)(p.y-origin.y)/chunk_size;
+    idx.k = (int)(p.z-origin.z)/chunk_size;
     for (int i2=0; i2<(int)distance/chunk_size; i2++){
         for (int j2=0; j2<(int)distance/chunk_size; j2++) {
             for (int k2=0; k2<(int)distance/chunk_size; k2++){
@@ -115,8 +115,31 @@ void Cavern::addChunk(ChunkIndex idx){
 
 Chunk createChunk(vec3 origin, int nb_cubes, float cube_size, float f(vec3)){
     Chunk chunk;
+    srand(time(0));
+    //creating terrain
     chunk.initialized = true;
-    chunk.terrain = (mesh_gpu)create_chunk(origin, nb_cubes, cube_size, f, 0.);;
+    mesh terrain = create_chunk(origin, nb_cubes, cube_size, f, 0.);
+    chunk.terrain.add_element(terrain, "cavern", "root");
+    //adding cristal
+    if (terrain.connectivity.size() > 0) {
+        index3 idx = terrain.connectivity[rand()%terrain.connectivity.size()];
+        const vec3& p0 = terrain.position[idx[0]];
+        const vec3& p1 = terrain.position[idx[1]];
+        const vec3& p2 = terrain.position[idx[2]];
+        chunk.cristal_pos = (p0 + p1 + p2)/3;
+        const vec3& p10 = normalize(p1-p0);
+        const vec3& p20 = normalize(p2-p0);
+        const vec3& n = normalize( cross(p10,p20) );
+        const vec3& p20bis = normalize(cross(p10,n));
+        /*mat3 rot(p10.x, p10.y, p10.z,
+                -p20bis.x, -p20bis.y, -p20bis.z,
+                n.x,   n.y,   n.z);*/
+        mat3 rot(p10.x, -p20bis.x, n.x,
+                 p10.y, -p20bis.y, n.y,
+                 p10.z, -p20bis.z, n.z);
+        chunk.terrain.add_element(create_cristal(), "cristal", "cavern", chunk.cristal_pos, rot);
+    }
+    //
     chunk.center = origin + vec3(nb_cubes*cube_size/2, nb_cubes*cube_size/2, nb_cubes*cube_size/2);
     chunk.size = nb_cubes*cube_size;
     return chunk;

@@ -3,11 +3,13 @@
 
 #include "../vcl/vcl.hpp"
 #include "../helper_scene.hpp"
+#include "cristal.hpp"
 
 #include <string>
 #include <map>
 #include <vector>
 #include <cmath>
+#include <cstdlib>
 
 using namespace vcl;
 
@@ -15,7 +17,8 @@ struct Chunk{
     bool initialized = false;
     vec3 center;
     float size;
-    mesh_gpu terrain;
+    vec3 cristal_pos;
+    mesh_drawable_hierarchy terrain;
 };
 
 Chunk createChunk(vec3 origin, int nb_cubes, float cube_size, float f(vec3));

@@ -1,2 +1,4 @@
 vcl/build-cmake-Desktop_Qt_5_12_0_GCC_64bit-Default/*
 vcl/cmake/build/*
+
+vcl/src/\.vscode/

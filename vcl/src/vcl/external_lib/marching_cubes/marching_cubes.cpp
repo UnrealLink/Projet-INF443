@@ -310,7 +310,7 @@ mesh create_chunk(vec3 origin, const int nb_cubes, const float cube_size, float 
             }
         }
     }
-
+    
     return chunk;
 
 }

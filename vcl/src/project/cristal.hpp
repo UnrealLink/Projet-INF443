@@ -5,10 +5,11 @@
 #include "../helper_scene.hpp"
 
 #include <cmath>
+#include <cstdlib>
 
 using namespace vcl;
 
 mesh create_cristal();
-mesh create_cristal_branch(float length, float radius);
+mesh create_cristal_branch(float length, float radius, mat3 rot=vcl::mat3::identity());
 
 #endif // CRISTAL_HPP
