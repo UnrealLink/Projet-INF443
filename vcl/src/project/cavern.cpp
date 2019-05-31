@@ -106,6 +106,7 @@ Cavern createCavern(vec3 origin, int nb_chunks, int nb_cubes, float cube_size, f
     current_idx.j = (int)(origin.y-cavern.origin.y)/chunk_size;
     current_idx.k = (int)(origin.z-cavern.origin.z)/chunk_size;
     cavern.current_idx = current_idx;
+    srand(time(0));
     /*
     Chunk chunk;
     for (int i=0; i<nb_chunks; i++){
@@ -129,13 +130,12 @@ void Cavern::addChunk(ChunkIndex idx){
 
 Chunk createChunk(vec3 origin, int nb_cubes, float cube_size, float f(vec3)){
     Chunk chunk;
-    srand(time(0));
     //creating terrain
     chunk.initialized = true;
     mesh terrain = create_chunk(origin, nb_cubes, cube_size, f, 0.);
     chunk.terrain.add_element(terrain, "cavern", "root");
     //adding cristal
-    if (terrain.connectivity.size() > 0) {
+    if ((terrain.connectivity.size() > 0) && (rand()%3 == 0)) {
         index3 idx = terrain.connectivity[rand()%terrain.connectivity.size()];
         const vec3& p0 = terrain.position[idx[0]];
         const vec3& p1 = terrain.position[idx[1]];
