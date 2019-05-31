@@ -14,7 +14,7 @@ void scene_project::setup_data(std::map<std::string,GLuint>& , scene_structure& 
     texture_terrain = texture_gpu(image_load_png("data/gravel-stone.png"));
     */
 
-    cavern = createCavern(vec3(0, 0, 0), 50, 10, 1, isovalue);
+    cavern = createCavern(vec3(0, 0, 0), 100, 8, 1, isovalue);
     cavern.uniform_parameter.color = {1.f, 1.f, 1.f};
     cavern.uniform_parameter.shading = {0.13f, 1.f, 0.f}; // non-specular terrain material
     texture_cavern = texture_gpu(image_load_png("data/rock.png"));
@@ -30,10 +30,10 @@ void scene_project::setup_data(std::map<std::string,GLuint>& , scene_structure& 
     mur.embossMaxMap = vec3(1.f+ embossStrength, 1.f+ embossStrength, 1.f+ embossStrength);
 
     // Create requin
-    requin = load_requin("data/requin.obj", 5.f);
+    requin = load_requin("data/requin.obj", 1.f);
     requin.start = 0.5;
     requin.uniform_parameter.shading = {0.6f, 0.5f, 0.f};
-    requin.uniform_parameter.translation = {0.f,0.f,10.f};
+    requin.uniform_parameter.translation = {0.f,0.f,1.f};
     requin.uniform_parameter.color = {1.f, 1.f, 1.f};
     requin.uniform_parameter.rotation = rotation_from_axis_angle_mat3({1.0f, .0f, .0f}, 3.14159f/2.f);
     embossStrength = 0.1;
@@ -119,7 +119,7 @@ void scene_project::frame_draw(std::map<std::string,GLuint>& shaders, scene_stru
     glBindTexture(GL_TEXTURE_2D, texture_perlin);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,  GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,  GL_REPEAT);
-    
+
     // compute requin movement
     pos_requin = requin.uniform_parameter.translation;
     grad_requin.x = (isovalue(pos_requin + h*vec3(1, 0, 0)) - isovalue(pos_requin - h*vec3(1, 0, 0))) / (2*h);
@@ -139,7 +139,7 @@ void scene_project::frame_draw(std::map<std::string,GLuint>& shaders, scene_stru
         skip = false;
     } else {
         requin.uniform_parameter.rotation =  rotx*roty*rotz;
-    }    
+    }
     */
     requin.draw(shaders["requin"], scene.camera);
     glBindTexture(GL_TEXTURE_2D, scene.texture_white);
