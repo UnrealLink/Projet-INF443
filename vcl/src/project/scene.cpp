@@ -127,11 +127,18 @@ void scene_project::frame_draw(std::map<std::string,GLuint>& shaders, scene_stru
     grad_requin.z = (isovalue(pos_requin + h*vec3(0, 0, 1)) - isovalue(pos_requin - h*vec3(0, 0, 1))) / (2*h);
     speed = normalize(speed + a*grad_requin);
     requin.uniform_parameter.translation += h*speed;
-    /*
-    mat3 rotx(1, 0, 0, 0, std::cos((float)i), -std::sin((float)i), 0, std::sin((float)i), std::cos((float)i));
-    mat3 roty(std::cos((float)i), 0, std::sin((float)i), 0, 1, 0, -std::sin((float)i), 0, std::cos((float)i));
-    mat3 rotz(std::cos((float)i), -std::sin((float)i), 0, std::sin((float)i), std::cos((float)i), 0, 0, 0, 1);
-    */
+    float phi = std::acos(normalize(speed).z);
+    float theta = std::acos(normalize(speed).x/std::sin(phi));
+    phi = std::fabs(phi) + std::acos(-1);
+    theta = std::fabs(theta);
+    mat3 rotx(1, 0, 0, 0, std::cos(0), -std::sin(0), 0, std::sin(0), std::cos(0));
+    mat3 roty(std::cos(phi), 0, std::sin(phi), 0, 1, 0, -std::sin(phi), 0, std::cos(phi));
+    mat3 rotz(std::cos(theta), -std::sin(theta), 0, std::sin(theta), std::cos(theta), 0, 0, 0, 1);
+    if (skip) {
+        skip = false;
+    } else {
+        requin.uniform_parameter.rotation =  rotx*roty*rotz;
+    }
     requin.draw(shaders["requin"], scene.camera);
     glBindTexture(GL_TEXTURE_2D, scene.texture_white);
 
@@ -153,7 +160,7 @@ void scene_project::set_lights(GLuint shader, scene_structure& scene)
     glUseProgram(shader); opengl_debug();
 
     vec3 dir = scene.camera.orientation*vec3(0.f, 0.f, -1.f);
-    light mainLight = light{ 0.2f*dir + scene.camera.camera_position() , vec3(1.f, 1.f, 1.f), 0.f, 10.f};
+    light mainLight = light{ 0.2f*dir + scene.camera.camera_position() , vec3(1.f, 1.f, 1.f), 0.f, 20.f};
     light cristal[10];
     cristal[0] = light{vec3(5.f, 0.f, 2.f), vec3(0.8f, 0.8f, 0.8f), 1.f, 1.f};
     for(int i = 1; i < 10; i++)

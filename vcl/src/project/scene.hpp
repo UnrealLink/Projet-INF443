@@ -61,6 +61,7 @@ struct scene_project
     vec3 speed = vec3(1,1,1);
     float h = 0.01;
     float a = 0.1;
+    bool skip =true;
 
     mesh_drawable waterbox;
 
