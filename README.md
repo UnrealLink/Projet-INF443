@@ -9,4 +9,4 @@ To compile :
 >> cmake ..
 >> cd ../..
 >> cmake -C cmake/build
->> cmake/build/pgm
+>> make/build/pgm
